@@ -1,6 +1,6 @@
 .classpath
-.idea
 .project
 target
 *.iml
 metastore_db
+*.log
