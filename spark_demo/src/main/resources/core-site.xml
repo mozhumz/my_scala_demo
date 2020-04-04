@@ -18,7 +18,7 @@
 <configuration>
 	 <property>
     		<name>fs.defaultFS</name>
-	    	<value>hdfs://mozhu.iok.la:25886</value>
+	    	<value>hdfs://master:9000</value>
     		<description>HDFS的URI，文件系统://namenode标识:端口号</description>
 	</property>
 	<property>

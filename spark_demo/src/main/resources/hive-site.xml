@@ -3,7 +3,7 @@
 <configuration>
         <property>
                 <name>javax.jdo.option.ConnectionURL</name>
-                <value>jdbc:mysql://175862h33f.iok.la:22618/hive?createDatabaseIfNotExist=true&amp;useSSL=false</value>
+                <value>jdbc:mysql://master:3306/hive?createDatabaseIfNotExist=true&amp;useSSL=false</value>
         </property>
         <property>
                 <name>javax.jdo.option.ConnectionDriverName</name>
@@ -19,7 +19,7 @@
         </property>
         <property>
                 <name>hive.metastore.warehouse.dir</name>
-                <value>hdfs://mozhu.iok.la:25886/user/hive/warehouse</value>
+                <value>hdfs://master:9000/user/hive/warehouse</value>
         </property>
 	
 </configuration>
