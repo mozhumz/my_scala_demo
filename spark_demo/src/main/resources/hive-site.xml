@@ -15,7 +15,7 @@
         </property>
         <property>
                 <name>javax.jdo.option.ConnectionPassword</name>
-                <value>123456</value>
+                <value>Mz.52610</value>
         </property>
         <property>
                 <name>hive.metastore.warehouse.dir</name>
