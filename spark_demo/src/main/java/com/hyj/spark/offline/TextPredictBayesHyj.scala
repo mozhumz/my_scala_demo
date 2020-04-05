@@ -5,7 +5,15 @@ import org.apache.spark.ml.classification.NaiveBayes
 import org.apache.spark.ml.evaluation.MulticlassClassificationEvaluator
 import org.apache.spark.ml.feature.{HashingTF, IDF, StringIndexer}
 import org.apache.spark.sql.SparkSession
-
+/**预测某篇文章属于哪个类别：
+1 根据训练集（每篇文章有对应的一个类别）
+遍历每篇文章，计算文章总数，各类别下的文章数，每篇文章再遍历单词，计算各类别下各单词词频
+2 计算各类别的占比=各类别下的文章数/文章总数 计算各类别各单词的占比（即得到训练模型）
+3 给定测试集（要测试的文章数，已知每篇文章属于哪个类别），
+根据训练模型，遍历文章，遍历单词，遍历类别，
+计算每篇测试文章所有单词，在不同类别的汇总得分+各类别的占比，筛选出得分最高的类别
+4 准确度=预测对的文章数/总测试文章数
+*/
 object TextPredictBayesHyj {
   def main(args: Array[String]): Unit = {
     System.setProperty("HADOOP_USER_NAME", "root")
