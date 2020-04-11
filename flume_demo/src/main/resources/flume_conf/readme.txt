@@ -1,5 +1,6 @@
 不同场景的flume配置：
-负载均衡
-副本
-source拦截器之多路复用
-source聚合
+故障转移 failover
+负载均衡 load_balance
+副本 replicate
+自定义source拦截器之多路复用 interceptor
+source聚合 aggregate

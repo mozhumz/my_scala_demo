@@ -1,0 +1,3 @@
+source聚合
+1 不同agent通过绑定一个sink端口
+2 不同agent通过绑定多个个sink端口

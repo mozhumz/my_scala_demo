@@ -31,6 +31,7 @@ public class MyInterceptor implements Interceptor {
     @Override
     public List<Event> intercept(List<Event> list) {
 //        eventList.clear();
+
         if (CollectionUtils.isNotEmpty(list)) {
             list.forEach(event -> {
                 intercept(event);
