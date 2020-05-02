@@ -2,9 +2,12 @@ package streaming
 
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.SparkConf
+import org.apache.spark.streaming.dstream.ReceiverInputDStream
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
-
+/**
+  * spark-stream-wordcount
+  */
 object LocalStreamTestHyj {
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf().setAppName("WC")
@@ -20,7 +23,8 @@ object LocalStreamTestHyj {
 //    }
 
 
-    val lines = ssc.socketTextStream("192.168.163.130",9999)
+    val value: ReceiverInputDStream[String] = ssc.socketTextStream("192.168.163.130", 9999)
+    val lines = value
     val words = lines.flatMap(_.split(" "))
 //    1+1+1+2+3 (Long)
 //    The checkpoint directory has not been set. Please set it by StreamingContext.checkpoint().

@@ -2,6 +2,7 @@ package streaming
 
 import java.io.{BufferedReader, InputStreamReader}
 import java.net.{ConnectException, Socket}
+import java.util.concurrent.{ExecutorService, Executors, ThreadPoolExecutor}
 
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.SparkConf
@@ -10,6 +11,9 @@ import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.streaming.receiver.Receiver
 
+/**
+  * * spark-stream-wordcount-自定义接收器
+  */
 object MyReceiverTestHyj {
   def main(args: Array[String]): Unit = {
     Logger.getLogger("org.apache.spark").setLevel(Level.ERROR)
@@ -25,8 +29,16 @@ object MyReceiverTestHyj {
     ssc.awaitTermination()
   }
 }
+
+/**
+  * 自定义接收器
+  * @param host
+  * @param port
+  */
 class MyReceiver(host:String,port:Int) extends Receiver[String](StorageLevel.MEMORY_AND_DISK_SER_2){
   private var socket: Socket = _
+
+
 
   override def onStart(): Unit = {
     try {
@@ -38,10 +50,12 @@ class MyReceiver(host:String,port:Int) extends Receiver[String](StorageLevel.MEM
     }
 
     // Start the thread that receives data over a connection
+    val task=
     new Thread("Socket Receiver") {
       setDaemon(true)
       override def run() { receive() }
-    }.start()
+    }
+
   }
 
   override def onStop(): Unit = {
