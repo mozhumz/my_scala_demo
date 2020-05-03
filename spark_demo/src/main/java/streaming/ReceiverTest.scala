@@ -5,6 +5,7 @@ import org.apache.log4j.{Level, Logger}
 import org.apache.spark.sql.{AnalysisException, SaveMode, SparkSession}
 import org.apache.spark.streaming.kafka.KafkaUtils
 import org.apache.spark.streaming.{Seconds, StreamingContext}
+import streaming.kafka.Orders
 
 object ReceiverTest {
   case class order(order_id:String,user_id:String)

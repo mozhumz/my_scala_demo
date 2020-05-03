@@ -1,6 +1,7 @@
 package streaming
 
 import com.alibaba.fastjson.JSON
+import streaming.kafka.Orders
 
 object JsonTest {
   def main(args: Array[String]): Unit = {

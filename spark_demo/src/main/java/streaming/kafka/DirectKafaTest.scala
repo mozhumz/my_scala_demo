@@ -1,15 +1,13 @@
-package streaming
+package streaming.kafka
 
 import com.alibaba.fastjson.JSON
-import kafka.serializer.StringDecoder
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.SparkConf
 //import org.apache.spark.streaming.kafka.KafkaUtils
-import org.apache.spark.streaming.{Seconds, StreamingContext}
-import org.apache.spark.streaming._
 import org.apache.spark.streaming.kafka010._
+import org.apache.spark.streaming.{Seconds, StreamingContext}
 //import org.apache.spark.streaming.kafka._
 
 object DirectKafaTest {

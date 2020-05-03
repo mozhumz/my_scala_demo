@@ -2,6 +2,7 @@ package streaming
 
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.SparkConf
+import org.apache.spark.streaming.dstream.ReceiverInputDStream
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
 
@@ -20,7 +21,8 @@ object LocalStreamTest {
     }
 
 
-    val lines = ssc.socketTextStream("192.168.174.134",9999)
+    val value: ReceiverInputDStream[String] = ssc.socketTextStream("192.168.174.134", 9999)
+    val lines = value
     val words = lines.flatMap(_.split(" "))
 //    1+1+1+2+3 (Long)
 //    The checkpoint directory has not been set. Please set it by StreamingContext.checkpoint().

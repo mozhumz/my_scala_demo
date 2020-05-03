@@ -1,4 +1,4 @@
-package streaming;
+package streaming.kafka;
 
 public class Orders {
     public String order_id;
