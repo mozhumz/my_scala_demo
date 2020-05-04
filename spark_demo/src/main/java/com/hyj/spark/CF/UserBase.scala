@@ -11,11 +11,13 @@ object UserBase {
     System.setProperty("HADOOP_USER_NAME","root")
     val warehouse = "hdfs://192.168.174.134:9000/warehouse"
 
-    val spark = SparkSession.builder()
-      .config("spar.sql.warehouse.dir",warehouse).master("local[2]")
+    val session = SparkSession.builder()
+      .config("spar.sql.warehouse.dir", warehouse).master("local[2]")
       .appName("User Base")
       .enableHiveSupport()
       .getOrCreate()
+    val spark = session
+
 
     Logger.getLogger("org.apache.spark").setLevel(Level.ERROR)
 //    val df = spark.read.option("sep","\t").csv("C:\\Users\\zheng\\PycharmProjects\\14mr\\data\\u.data")
