@@ -8,6 +8,9 @@ import org.apache.spark.sql.functions._
 import org.apache.spark.storage.StorageLevel
 import com.hyj.spark.offline.Feature.GenerateFeature
 
+/**
+  * spark之多元线性回归-模型拟合
+  */
 object LRTest {
   def main(args: Array[String]): Unit = {
 
