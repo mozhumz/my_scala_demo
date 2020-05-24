@@ -1,5 +1,6 @@
 package com.hyj.spark.offline
 
+import org.apache.log4j.{Level, Logger}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
@@ -8,6 +9,7 @@ import org.apache.spark.{SparkConf, SparkContext}
   */
 object SparkRDDHyj {
   def main(args: Array[String]): Unit = {
+    Logger.getLogger(SparkRDDHyj.getClass).setLevel(Level.INFO)
     val conf: SparkConf = new SparkConf().setAppName("SparkRDDHyj").setMaster("local[*]")
 
     rddOperation(conf)
@@ -75,6 +77,40 @@ object SparkRDDHyj {
       */
     val glomRdd: RDD[Array[Int]] = rdd.glom()
     glomRdd.collect().foreach(x=>println(x.mkString(",")))
+
+    /**
+      * groupBy(func) 根据func的返回值进行分组
+      */
+    val groupByFuncRdd: RDD[(Int, Iterable[Int])] = rdd.groupBy(_%2)
+    println("groupByFuncRdd----------------")
+    groupByFuncRdd.foreach(println)
+
+    val filterRdd: RDD[Int] = rdd.filter(_%2==0)
+    println("filterRdd----------------")
+    filterRdd.foreach(println)
+
+    /**
+      *reduceByKey用于对每个key对应的多个value进行merge操作，最重要的是它能够在本地先进行merge操作，并且merge操作可以通过函数自定义
+      * groupByKey也是对每个key进行操作，但只生成一个sequence 如果需要对sequence进行aggregation操作
+      * （注意，groupByKey本身不能自定义操作函数），那么，选择reduceByKey/aggregateByKey更好。这是因为groupByKey
+      * 不能自定义函数，我们需要先用groupByKey生成RDD，然后才能对此RDD通过map进行自定义函数操作
+      */
+    val mapRdd2: RDD[(Int, Int)] = ssc.makeRDD(Array(1,1,2,3,4,4)).map((_,1))
+    val reduceByKeyRdd: RDD[(Int, Int)] = mapRdd2.reduceByKey((x,y)=>x+y)
+    println("reduceByKeyRdd---------------")
+    reduceByKeyRdd.foreach(println)
+//    mapRdd2.groupByKey()
+    /**
+      * aggregateByKey 第一个参数0为:每个分区内的每个key的初始值
+      * math.max表示分区内相同key中取最大值
+      * _+_表示不同分区的值相加
+      */
+    val aggRdd=ssc.parallelize(List(("a",3),("a",2),("c",4),("b",3),("c",6),("c",8)),2)
+    println("aggRdd.glom()---------------------")
+    aggRdd.glom().collect().foreach(x=>println(x.mkString("|")))
+    println("aggRdd.aggregateByKey---------------------")
+    aggRdd.aggregateByKey(0)(math.max,_+_).foreach(println)
+
 
     0
   }
