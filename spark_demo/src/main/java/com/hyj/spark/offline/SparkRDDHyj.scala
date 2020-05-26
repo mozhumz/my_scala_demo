@@ -14,7 +14,8 @@ object SparkRDDHyj {
 
 //    rddOperation(conf)
 //    rddTrain(conf)
-    println("1,2".split(",")(0))
+    println("四川#3".split("#")(0))
+//    aggRdd(conf)
   }
 
   /**
@@ -120,7 +121,7 @@ object SparkRDDHyj {
     aggRdd.aggregateByKey(0)(_ + _, _ + _).foreach(println)
 
     /**
-      *foldByKey 分区内计算和分区间计算一致
+      *foldByKey 分区内计算和分区间计算一致时使用
       */
     println("aggRdd.foldByKey---------------------")
     aggRdd.foldByKey(0)(_ + _).foreach(println)
@@ -182,15 +183,52 @@ object SparkRDDHyj {
     }
     import ImplicitValue.KeyOrdering
     rdd.map(x=>{
-      (x._1+"|"+x._2,1)
+      (x._1+"\001"+x._2,1)
     }).reduceByKey(_+_).map(x=>
-      (x._1.split("|")(0),x)
+
+      (x._1.split("\001")(0),x)
     ).groupByKey().map(
       x=>{
-        x._2.toList.sortBy(_._2).take(2)
+        (x._1,x._2.toList.sortBy(_._2).take(2))
       }
     ).foreach(println)
 
+    println("countByKey----------------")
+//    rdd.map(x=>{
+//      (x._1+"|"+x._2,1)
+//    }).countByKey().map(x=>
+//      (x._1.split("|")(0),x)
+//    ).groupBy(_._1)
+//      .map(
+//      y=>
+//        (y._1,y._2.toList.sortBy(_._2).take(2))
+//    ).foreach(println)
 
+  }
+
+  def aggRdd(conf: SparkConf):Unit={
+    val ssc = new SparkContext(conf)
+    val rdd=ssc.makeRDD(1 to 10,3)
+    val aggRdd = ssc.parallelize(List(("a", 3), ("a", 2), ("c", 4), ("b", 3), ("c", 6), ("c", 8)), 2)
+    println("aggRdd.glom()-------------")
+    aggRdd.glom().collect().foreach(x=>println(x.mkString("|")))
+
+    /**
+      * aggregateByKey zeroValue表示初始值，
+      * 这里分区内和分区间都是根据key求和，分区内每个key的初始值10+每个key对应的值
+      */
+    println("aggRdd.aggregateByKey()-------------")
+    aggRdd.aggregateByKey(10)(_+_,_+_).foreach(println)
+
+    /**
+      * aggregate 初始值会在分区内和分区间参与计算
+      * 这里分区为2个，初始值加两次 10+10，分区间加一次初始值+10
+      */
+    val rddSum: Int = rdd.aggregate(10)(_+_,_+_)
+    println("rddSum:"+rddSum)
+
+    aggRdd.saveAsTextFile("file:///G:\\idea_workspace\\my_scala_demo\\spark_demo\\output1")
+    aggRdd.saveAsSequenceFile("file:///G:\\idea_workspace\\my_scala_demo\\spark_demo\\output2")
+    aggRdd.saveAsObjectFile("file:///G:\\idea_workspace\\my_scala_demo\\spark_demo\\output3")
   }
 }
