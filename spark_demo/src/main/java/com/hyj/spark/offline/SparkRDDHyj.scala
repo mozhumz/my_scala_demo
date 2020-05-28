@@ -14,8 +14,9 @@ object SparkRDDHyj {
 
 //    rddOperation(conf)
 //    rddTrain(conf)
-    println("四川#3".split("#")(0))
+//    println("四川#3".split("#")(0))
 //    aggRdd(conf)
+    dependencyRdd(conf)
   }
 
   /**
@@ -230,5 +231,36 @@ object SparkRDDHyj {
     aggRdd.saveAsTextFile("file:///G:\\idea_workspace\\my_scala_demo\\spark_demo\\output1")
     aggRdd.saveAsSequenceFile("file:///G:\\idea_workspace\\my_scala_demo\\spark_demo\\output2")
     aggRdd.saveAsObjectFile("file:///G:\\idea_workspace\\my_scala_demo\\spark_demo\\output3")
+  }
+
+  /**
+    * 宽依赖和窄依赖
+    * @param conf
+    */
+  def dependencyRdd(conf: SparkConf):Unit={
+    val ssc = new SparkContext(conf)
+    ssc.setCheckpointDir("dependencyRdd")
+    val rdd: RDD[Int] = ssc.makeRDD(1 to 10,2)
+    val rdd1: RDD[(Int, Int)] = rdd.map((_,1))
+//    rdd1.checkpoint()
+    val res: RDD[(Int, Int)] = rdd1.reduceByKey(_+_)
+
+    /**
+      * (2) ShuffledRDD[2] at reduceByKey at SparkRDDHyj.scala:246 []
+      * |  ReliableCheckpointRDD[3] at foreach at SparkRDDHyj.scala:248 []
+      * checkpoint 将当前调用checkpoint的rdd的父级rdd保存到磁盘，切断血缘关系，
+      * 这样调用者依赖于checkpoint的rdd（磁盘保存的rdd）
+      */
+    res.checkpoint()
+
+    /**
+      * cache缓存rdd 不能切断血缘关系
+      */
+    res.cache()
+    res.foreach(println)
+
+    //打印rdd之间的依赖关系（血缘关系）
+    println(res.toDebugString)
+
   }
 }
