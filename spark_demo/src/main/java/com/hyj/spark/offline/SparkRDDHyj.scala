@@ -1,7 +1,19 @@
 package com.hyj.spark.offline
 
+import java.sql.{Connection, DriverManager, PreparedStatement}
+
+import com.mysql.jdbc.Driver
+import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.hbase.{Cell, CellUtil, HBaseConfiguration}
+import org.apache.hadoop.hbase.client.{Put, Result}
+import org.apache.hadoop.hbase.io.ImmutableBytesWritable
+import org.apache.hadoop.hbase.mapred.TableOutputFormat
+import org.apache.hadoop.hbase.mapreduce.TableInputFormat
+import org.apache.hadoop.hbase.util.Bytes
+import org.apache.hadoop.mapred.JobConf
 import org.apache.log4j.{Level, Logger}
-import org.apache.spark.rdd.RDD
+import org.apache.spark.broadcast.Broadcast
+import org.apache.spark.rdd.{JdbcRDD, RDD}
 import org.apache.spark.{SparkConf, SparkContext}
 
 /**
@@ -12,11 +24,14 @@ object SparkRDDHyj {
     Logger.getLogger(SparkRDDHyj.getClass).setLevel(Level.INFO)
     val conf: SparkConf = new SparkConf().setAppName("SparkRDDHyj").setMaster("local[*]")
 
-//    rddOperation(conf)
-//    rddTrain(conf)
-//    println("四川#3".split("#")(0))
-//    aggRdd(conf)
-    dependencyRdd(conf)
+    //    rddOperation(conf)
+    //    rddTrain(conf)
+    //    println("四川#3".split("#")(0))
+    //    aggRdd(conf)
+    //    dependencyRdd(conf)
+    //    dbMysqlRdd(conf)
+    //    dbHbaseRdd(conf)
+    broadcast(conf)
   }
 
   /**
@@ -38,6 +53,8 @@ object SparkRDDHyj {
     val fileRDD: RDD[String] = context.textFile("file:///G:\\idea_workspace\\my_scala_demo\\spark_demo\\input_dir",
       3)
     fileRDD.saveAsTextFile("file:///G:\\idea_workspace\\my_scala_demo\\spark_demo\\output_dir2")
+
+    context.stop()
   }
 
   /**
@@ -122,33 +139,35 @@ object SparkRDDHyj {
     aggRdd.aggregateByKey(0)(_ + _, _ + _).foreach(println)
 
     /**
-      *foldByKey 分区内计算和分区间计算一致时使用
+      * foldByKey 分区内计算和分区间计算一致时使用
       */
     println("aggRdd.foldByKey---------------------")
     aggRdd.foldByKey(0)(_ + _).foreach(println)
 
     /**
-      *combineByKey根据key求平均值
+      * combineByKey根据key求平均值
       */
     println("aggRdd.combineByKey---------------------")
     aggRdd.combineByKey(
-      (_,1),
-      (acc:(Int,Int),v)=>(acc._1+v,acc._2+1),
-      (acc1:(Int,Int),acc2:(Int,Int))=>(acc1._1+acc2._1,acc1._2+acc2._2)
+      (_, 1),
+      (acc: (Int, Int), v) => (acc._1 + v, acc._2 + 1),
+      (acc1: (Int, Int), acc2: (Int, Int)) => (acc1._1 + acc2._1, acc1._2 + acc2._2)
     )
-      .map{case (key,value)=>(key,value._1/value._2.toDouble)}
+      .map { case (key, value) => (key, value._1 / value._2.toDouble) }
       .foreach(println)
     println("aggRdd.combineByKey-wordcount--------------------")
     aggRdd.combineByKey(
-      x=>x,
-      (acc:Int,v)=> acc+v,
-      (acc1:Int,acc2:Int)=> acc1+acc2
+      x => x,
+      (acc: Int, v) => acc + v,
+      (acc1: Int, acc2: Int) => acc1 + acc2
     ).foreach(println)
 
     /**
       *
       */
     aggRdd.sortByKey(true)
+
+    ssc.stop()
 
     0
   }
@@ -162,88 +181,93 @@ object SparkRDDHyj {
     * 河北 1 5
     * 山东 1 6
     * 统计每个省广告点击次数的top-N
+    *
     * @param conf
     */
-  def rddTrain(conf: SparkConf):Unit={
+  def rddTrain(conf: SparkConf): Unit = {
     val ssc = new SparkContext(conf)
-    val rdd=ssc.makeRDD(
+    val rdd = ssc.makeRDD(
       List(
-      ("四川",1,1),("四川",2,1),("四川",1,2),("四川",3,3),("四川",4,2),
-      ("河北",1,1),("河北",1,1),("河北",3,1),("河北",3,1),("河北",2,1),
-        ("湖北",4,1),("湖北",5,1),("湖北",6,1),("湖北",6,1),("湖北",4,1)
+        ("四川", 1, 1), ("四川", 2, 1), ("四川", 1, 2), ("四川", 3, 3), ("四川", 4, 2),
+        ("河北", 1, 1), ("河北", 1, 1), ("河北", 3, 1), ("河北", 3, 1), ("河北", 2, 1),
+        ("湖北", 4, 1), ("湖北", 5, 1), ("湖北", 6, 1), ("湖北", 6, 1), ("湖北", 4, 1)
       )
     )
 
     object ImplicitValue {
 
       implicit val KeyOrdering = new Ordering[Int] {
-        override def compare(x: Int, y: Int) : Int = {
+        override def compare(x: Int, y: Int): Int = {
           y.compareTo(x)
         }
       }
     }
     import ImplicitValue.KeyOrdering
-    rdd.map(x=>{
-      (x._1+"\001"+x._2,1)
-    }).reduceByKey(_+_).map(x=>
+    rdd.map(x => {
+      (x._1 + "\001" + x._2, 1)
+    }).reduceByKey(_ + _).map(x =>
 
-      (x._1.split("\001")(0),x)
+      (x._1.split("\001")(0), x)
     ).groupByKey().map(
-      x=>{
-        (x._1,x._2.toList.sortBy(_._2).take(2))
+      x => {
+        (x._1, x._2.toList.sortBy(_._2).take(2))
       }
     ).foreach(println)
 
     println("countByKey----------------")
-//    rdd.map(x=>{
-//      (x._1+"|"+x._2,1)
-//    }).countByKey().map(x=>
-//      (x._1.split("|")(0),x)
-//    ).groupBy(_._1)
-//      .map(
-//      y=>
-//        (y._1,y._2.toList.sortBy(_._2).take(2))
-//    ).foreach(println)
+    //    rdd.map(x=>{
+    //      (x._1+"|"+x._2,1)
+    //    }).countByKey().map(x=>
+    //      (x._1.split("|")(0),x)
+    //    ).groupBy(_._1)
+    //      .map(
+    //      y=>
+    //        (y._1,y._2.toList.sortBy(_._2).take(2))
+    //    ).foreach(println)
+    ssc.stop()
 
   }
 
-  def aggRdd(conf: SparkConf):Unit={
+  def aggRdd(conf: SparkConf): Unit = {
     val ssc = new SparkContext(conf)
-    val rdd=ssc.makeRDD(1 to 10,3)
+    val rdd = ssc.makeRDD(1 to 10, 3)
     val aggRdd = ssc.parallelize(List(("a", 3), ("a", 2), ("c", 4), ("b", 3), ("c", 6), ("c", 8)), 2)
     println("aggRdd.glom()-------------")
-    aggRdd.glom().collect().foreach(x=>println(x.mkString("|")))
+    aggRdd.glom().collect().foreach(x => println(x.mkString("|")))
 
     /**
       * aggregateByKey zeroValue表示初始值，
       * 这里分区内和分区间都是根据key求和，分区内每个key的初始值10+每个key对应的值
       */
     println("aggRdd.aggregateByKey()-------------")
-    aggRdd.aggregateByKey(10)(_+_,_+_).foreach(println)
+    aggRdd.aggregateByKey(10)(_ + _, _ + _).foreach(println)
 
     /**
       * aggregate 初始值会在分区内和分区间参与计算
       * 这里分区为2个，初始值加两次 10+10，分区间加一次初始值+10
       */
-    val rddSum: Int = rdd.aggregate(10)(_+_,_+_)
-    println("rddSum:"+rddSum)
+    val rddSum: Int = rdd.aggregate(10)(_ + _, _ + _)
+    println("rddSum:" + rddSum)
 
     aggRdd.saveAsTextFile("file:///G:\\idea_workspace\\my_scala_demo\\spark_demo\\output1")
     aggRdd.saveAsSequenceFile("file:///G:\\idea_workspace\\my_scala_demo\\spark_demo\\output2")
     aggRdd.saveAsObjectFile("file:///G:\\idea_workspace\\my_scala_demo\\spark_demo\\output3")
+
+    ssc.stop()
   }
 
   /**
     * 宽依赖和窄依赖
+    *
     * @param conf
     */
-  def dependencyRdd(conf: SparkConf):Unit={
+  def dependencyRdd(conf: SparkConf): Unit = {
     val ssc = new SparkContext(conf)
     ssc.setCheckpointDir("dependencyRdd")
-    val rdd: RDD[Int] = ssc.makeRDD(1 to 10,2)
-    val rdd1: RDD[(Int, Int)] = rdd.map((_,1))
-//    rdd1.checkpoint()
-    val res: RDD[(Int, Int)] = rdd1.reduceByKey(_+_)
+    val rdd: RDD[Int] = ssc.makeRDD(1 to 10, 2)
+    val rdd1: RDD[(Int, Int)] = rdd.map((_, 1))
+    //    rdd1.checkpoint()
+    val res: RDD[(Int, Int)] = rdd1.reduceByKey(_ + _)
 
     /**
       * (2) ShuffledRDD[2] at reduceByKey at SparkRDDHyj.scala:246 []
@@ -262,5 +286,142 @@ object SparkRDDHyj {
     //打印rdd之间的依赖关系（血缘关系）
     println(res.toDebugString)
 
+    /**
+      * 释放
+      */
+    ssc.stop()
   }
+
+  /**
+    * rdd对接数据库mysql
+    *
+    * @param sparkConf
+    */
+  def dbMysqlRdd(sparkConf: SparkConf): Unit = {
+    val sc = new SparkContext(sparkConf)
+    val url = "jdbc:mysql://master:3306/db_rdd"
+    val driver = "com.mysql.jdbc.Driver"
+    val username = "root"
+    val passwd = "Mz.52610"
+    //查询
+    val sql = "select name,age from t_user where id>=? and id <=?"
+
+    val insertSql = "insert into t_user (name,age) values (?,?)"
+
+    //    val jdbcRdd = new JdbcRDD(
+    //      sc,
+    //      () => {
+    //        Class.forName(driver)
+    //        DriverManager.getConnection(url,username,passwd)
+    //      },
+    //      sql, 1, 3, 2, (rs) => {
+    //        println(rs.getString(1) + "," + rs.getInt(2))
+    //      }
+    //    )
+    //    jdbcRdd.collect()
+
+    val rdd: RDD[(String, Int)] = sc.makeRDD(List(("zhangsan", 20), ("lisi", 30), ("wangwu", 40)))
+
+    //效率低的插入 每次新建数据库连接
+    //    rdd.foreach(x=>{
+    //      Class.forName(driver)
+    //      val connection: Connection = DriverManager.getConnection(url,username,passwd)
+    //      val statement: PreparedStatement = connection.prepareStatement(insertSql)
+    //      statement.setString(1,x._1)
+    //      statement.setInt(2,x._2)
+    //      statement.execute()
+    //      statement.close()
+    //      connection.close()
+    //    })
+
+    /**
+      * 效率高的插入 重复利用数据库连接
+      * 由于数据库连接Connection不能序列化，只能在本地创建连接 本地使用
+      * foreachPartition 每个分区的数据只会存在于一个节点，不存在网络传输，因此不需要序列化Connection就可以使用
+      */
+    rdd.foreachPartition(p => {
+
+      Class.forName(driver)
+      val connection: Connection = DriverManager.getConnection(url, username, passwd)
+      p.foreach(x => {
+        val statement: PreparedStatement = connection.prepareStatement(insertSql)
+        statement.setString(1, x._1)
+        statement.setInt(2, x._2)
+        statement.execute()
+        statement.close()
+      })
+      connection.close()
+    })
+
+    sc.stop()
+  }
+
+
+  /**
+    * rdd对接hbase
+    *
+    * @param sparkConf
+    */
+  def dbHbaseRdd(sparkConf: SparkConf): Unit = {
+    val sc = new SparkContext(sparkConf)
+    val configuration: Configuration = HBaseConfiguration.create()
+    //查询
+    configuration.set(TableInputFormat.INPUT_TABLE, "student")
+    val hbaseRdd: RDD[(ImmutableBytesWritable, Result)] = sc.newAPIHadoopRDD(
+      configuration, classOf[TableInputFormat], classOf[ImmutableBytesWritable], classOf[Result]
+    )
+    hbaseRdd.foreach(x => {
+      val cells: Array[Cell] = x._2.rawCells()
+      for (cell <- cells) {
+        println(Bytes.toString(CellUtil.cloneValue(cell)))
+      }
+    })
+
+    //新增
+    val rdd: RDD[(String, String)] = sc.makeRDD(List(("1002", "lisi"), ("1003", "w5"), ("1004", "x6")))
+    val putRdd: RDD[(ImmutableBytesWritable, Put)] = rdd.map(x => {
+      val put = new Put(Bytes.toBytes(x._1))
+      put.addColumn(Bytes.toBytes("info"), Bytes.toBytes("name"), Bytes.toBytes(x._2))
+      (new ImmutableBytesWritable(Bytes.toBytes(x._1)), put)
+    })
+    val jobConf = new JobConf(configuration)
+    jobConf.setOutputFormat(classOf[TableOutputFormat])
+    jobConf.set(TableOutputFormat.OUTPUT_TABLE, "student")
+    putRdd.saveAsHadoopDataset(jobConf)
+
+    sc.stop()
+  }
+
+  /**
+    * spark-broadcast 广播变量调优
+    *
+    * @param sparkConf
+    */
+  def broadcast(sparkConf: SparkConf): Unit = {
+    val sc = new SparkContext(sparkConf)
+    val rdd1: RDD[(Int, String)] = sc.makeRDD(List((1, "a"), (2, "b"), (3, "c")), 2)
+    val list = List((1, 1), (2, 2), (3, 3))
+    val rdd2 = sc.makeRDD(list, 2)
+
+    /**
+      * 广播变量的好处，不需要每个task带上一份变量副本，而是变成每个节点的executor才一份副本。
+      * 这样的话， 就可以让变量产生的副本大大减少
+      */
+    //    rdd1.join(rdd2).foreach(println)
+    val bRdd: Broadcast[List[(Int, Int)]] = sc.broadcast(list)
+    rdd2.map(x => {
+      var v: Any = null
+      for (y <- bRdd.value) {
+        if (y._1 == x._1) {
+          v = y._2
+        }
+      }
+       (x._1, (x._2, v))
+
+    }).foreach(println)
+
+
+    sc.stop()
+  }
+
 }
