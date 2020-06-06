@@ -13,7 +13,7 @@ object SparkSqlHyj {
       .builder()
       .appName("Feature Transform")
 //      .config("hive.metastore.uris","thrift://master:9083")
-      //本地调试要加上
+      //本地调试要加上 默认并行度=cpu核心数
       .master("local[*]")
       .enableHiveSupport()
       .getOrCreate()
@@ -29,6 +29,7 @@ object SparkSqlHyj {
     val properties: Properties = new Properties
     properties.put("user",MySqlConf.username)
     properties.put("password",MySqlConf.password)
+    //每次批量写入10000条
     properties.put("batchsize","10000")
     println("------write orders start--------------")
     /**
