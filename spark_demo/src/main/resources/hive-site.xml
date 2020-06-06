@@ -15,11 +15,15 @@
         </property>
         <property>
                 <name>javax.jdo.option.ConnectionPassword</name>
-                <value>Mz.52610</value>
+                <value>123456</value>
         </property>
         <property>
                 <name>hive.metastore.warehouse.dir</name>
                 <value>hdfs://master:9000/user/hive/warehouse</value>
         </property>
-	
+
+<!--        <property>-->
+<!--                <name>hive.metastore.uris</name>-->
+<!--                <value>thrift://master:9083</value>-->
+<!--        </property>-->
 </configuration>

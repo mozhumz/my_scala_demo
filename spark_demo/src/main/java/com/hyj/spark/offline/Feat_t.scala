@@ -1,7 +1,7 @@
 package com.hyj.spark.offline
 
 import org.apache.spark.sql.functions._
-import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.{SaveMode, SparkSession}
 import org.apache.spark.storage.StorageLevel
 
 object Feat_t {
@@ -15,6 +15,15 @@ object Feat_t {
     val orders = spark.sql("select * from badou.orders")
     val priors = spark.sql("select * from badou.priors")
 
+    /**
+      * 默认为SaveMode.ErrorIfExists模式，该模式下，如果数据库中已经存在该表，则会直接报异常，导致数据不能存入数据库.另外三种模式如下：
+      * SaveMode.Append 如果表已经存在，则追加在该表中；若该表不存在，则会先创建表，再插入数据；
+      * SaveMode.Overwrite 重写模式，其实质是先将已有的表及其数据全都删除，再重新创建该表，最后插入新的数据；
+      * SaveMode.Ignore 若表不存在，则创建表，并存入数据；在表存在的情况下，直接跳过数据的存储，不会报错。
+      */
+    //    orders.write
+//      .mode(SaveMode.Append)
+//      .jdbc()
     /** product feature
       * 1. 销售量 prod_cnt
       * 2. 商品被再次购买（reordered）量 prod_sum_rod
