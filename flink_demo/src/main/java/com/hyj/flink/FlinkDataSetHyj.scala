@@ -1,4 +1,4 @@
-package com.hyj.flink.kafka
+package com.hyj.flink
 
 import org.apache.flink.api.java.utils.ParameterTool
 import org.apache.flink.api.scala.{AggregateDataSet, DataSet, ExecutionEnvironment}

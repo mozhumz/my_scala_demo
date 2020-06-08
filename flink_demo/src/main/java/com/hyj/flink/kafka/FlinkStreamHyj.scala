@@ -34,6 +34,8 @@ object FlinkStreamHyj {
   def wordCount(stream: DataStream[String]): Unit = {
     val wordStream: DataStream[(String, Int)] = stream.setParallelism(10)
       .flatMap(_.split(" ")).map((_, 1)).keyBy(0).sum(1)
+
+    wordStream.print()
   }
 
 }
