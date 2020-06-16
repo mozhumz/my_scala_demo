@@ -2,6 +2,8 @@ package com.hyj.spark.test
 
 import com.alibaba.fastjson.{JSON, JSONArray}
 
+import scala.collection.mutable
+
 object TestCase {
   def main(args: Array[String]): Unit = {
     case class Book(title: String, pages: Int)
@@ -15,11 +17,16 @@ object TestCase {
     //Book(Future of Scala developers,85)
     val b2=books.minBy(book => book.pages)
     println(b2)
+    val set = mutable.Set[String]()
+    set.add("1")
+    set.add("2")
+
+    println(set.contains("1"))
 
 //    var map=Map[Int,String]()
 //    map+=(1->"one",2->"two")
 //    println(map.getOrElse(1,"default"))
-    testArr
+//    testArr
   }
 
   def testArr:Unit={
