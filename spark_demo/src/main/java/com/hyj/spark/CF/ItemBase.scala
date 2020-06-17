@@ -37,7 +37,14 @@ object ItemBase {
       .groupByKey().mapValues(v => {
       (v.toArray, v.toArray.length)
     }).toDF("item_id", "arr_count")
-    //
+    //item i j 关联i和j对应的user集合
+
+    // 对2个集合求交集/2个集合的元素总数=相似度sim
+
+    // 查询user_id=385的item_id集合 等值关联(item_id)上一步的结果 score=rating*sim group by item_id_j sum(score)
+
+    //排序 top-N
+
 
     //计算同时喜欢物品i j 的人数和user_id
     //物品相似度map i,(j,cos)
