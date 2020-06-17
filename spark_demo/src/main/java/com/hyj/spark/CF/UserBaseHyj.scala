@@ -136,7 +136,7 @@ object UserBaseHyj {
         val array: GenericRowWithSchema = s.asInstanceOf[GenericRowWithSchema]
         item_id_set.add(array.apply(0).toString)
       })
-
+//    存储待推荐-item得分
       val target_item_map = mutable.Map[String, Double]()
 
       //过滤数据
@@ -150,7 +150,9 @@ object UserBaseHyj {
           val score: Option[Double] = target_item_map.get(array(0).toString)
           var d: Double = score.getOrElse(0)
           d += array.apply(1).toString.toDouble
-          target_item_map.put(array(0).toString, d * x.getAs[String]("cos").toString.toDouble)
+//          target_item_map.put("rec_user_id:"+x.getAs[String]("user_id_v")+"|"+array(0).toString,
+          target_item_map.put(array(0).toString,
+            d * x.getAs[String]("cos").toString.toDouble)
 
         })
 
@@ -191,10 +193,31 @@ object UserBaseHyj {
     /**
       *  推荐user_id=71的物品
       */
-    u_rec_item_rdd.toDF("user_id","rec_item").where("user_id=71")
-      .selectExpr("*")
+    val rec_df: DataFrame = u_rec_item_rdd.toDF("user_id", "rec_item")
+    rec_df
+      .where("user_id=385")
+      .select(rec_df("user_id"),explode(rec_df("rec_item")))
+      .toDF("user_id","rec_item")
+      .selectExpr("user_id","rec_item._1 as item_id","rec_item._2 as score")
       .show(false)
+
+    /**
+      * +-------+-------+------------------+
+      * |user_id|item_id|score             |
+      * +-------+-------+------------------+
+      * |385    |11     |10.83455940330164 |
+      * |385    |179    |10.820999358015293|
+      * |385    |432    |10.815509891115187|
+      * |385    |475    |9.827860145138558 |
+      * |385    |154    |9.356610793984192 |
+      * |385    |7      |9.345355108481666 |
+      * |385    |64     |9.341759016307728 |
+      * |385    |223    |8.381684906489413 |
+      * |385    |202    |8.375322977248489 |
+      * |385    |640    |8.360982495742789 |
+      * +-------+-------+------------------+
+      */
+
   }
 
-  case class ItemScore(item_id:String,score:Double)
 }

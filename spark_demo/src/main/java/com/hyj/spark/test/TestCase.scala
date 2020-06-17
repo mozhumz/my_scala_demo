@@ -13,15 +13,18 @@ object TestCase {
       Book("Mobile Development", 495) )
     //Book(Mobile Development,495)
     val b1=books.maxBy(_.pages)
-    println(b1)
+//    println(b1)
     //Book(Future of Scala developers,85)
     val b2=books.minBy(book => book.pages)
-    println(b2)
+//    println(b2)
     val set = mutable.Set[String]()
     set.add("1")
     set.add("2")
 
-    println(set.contains("1"))
+//    println(set.contains("1"))
+    val map: mutable.Map[String, Double] = mutable.Map[String,Double]()
+    map.put("1",1);
+    println(map)
 
 //    var map=Map[Int,String]()
 //    map+=(1->"one",2->"two")
