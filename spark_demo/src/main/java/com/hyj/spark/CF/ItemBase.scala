@@ -1,7 +1,7 @@
 package com.hyj.spark.CF
 
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.{DataFrame, RelationalGroupedDataset, SparkSession}
 import org.apache.spark.sql.functions._
 
 import scala.collection.mutable
@@ -22,20 +22,26 @@ object ItemBase {
       * 1 计算物品相似度
       */
     val df: DataFrame = spark.sql("select user_id,item_id, rating from badou.udata")
+    val df_j: DataFrame = df.selectExpr("user_id","item_id as item_id_j","rating as rating_j")
+    //获取item i j
+    val item_ij_df: RelationalGroupedDataset = df.join(df_j,"user_id")
+      .groupBy("item_id","item_id_j")
     //计算喜欢物品i的user_id和人数
     //      val item_count_df: DataFrame = df.groupBy("item_id").count()
-    val item_count_rdd: RDD[(String, (Array[(String, Double)], Int))] = df.rdd.map(row => {
+    import spark.implicits._
+    val item_users_df: DataFrame = df.rdd.map(row => {
       (row.getAs[String]("item_id"),
         (row.getAs[String]("user_id"), row.getAs[Double]("rating"))
       )
     })
       .groupByKey().mapValues(v => {
       (v.toArray, v.toArray.length)
-    })
+    }).toDF("item_id", "arr_count")
+    //
 
     //计算同时喜欢物品i j 的人数和user_id
     //物品相似度map i,(j,cos)
-    val map = mutable.Map[String, mutable.Map[String, Double]]()
+   /* val map = mutable.Map[String, mutable.Map[String, Double]]()
 
     item_count_rdd.foreach(i => {
       val item_id_i=i._1
@@ -93,7 +99,7 @@ object ItemBase {
     })
 
     //排序输出
-    println(rec_map.toArray.sortWith((t1,t2)=>t1._2.compareTo(t2._2)>0).take(10))
+    println(rec_map.toArray.sortWith((t1,t2)=>t1._2.compareTo(t2._2)>0).take(10))*/
 
 
   }
