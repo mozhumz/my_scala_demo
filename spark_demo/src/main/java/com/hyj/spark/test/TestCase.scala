@@ -30,12 +30,20 @@ object TestCase {
 //    map+=(1->"one",2->"two")
 //    println(map.getOrElse(1,"default"))
 //    testArr
+    testSet
   }
 
   def testArr:Unit={
     val str="[[328, 3.0], [345, 3.0], [311, 4.0], [902, 5.0], [900, 3.0], [690, 4.0], [319, 4.0], [321, 4.0], [303, 4.0], [305, 4.0], [315, 4.0], [316, 4.0], [340, 3.0], [272, 4.0], [347, 4.0], [313, 3.0], [304, 3.0], [307, 2.0], [286, 3.0], [268, 5.0], [896, 4.0], [338, 3.0]] "
     val array: JSONArray = JSON.parseArray(str)
     println(array.toArray())
+  }
+
+  def testSet:Unit={
+    val set1: Set[Int] = Set(1,2,3)
+    val set2: Set[Int] = Set(1,3,4)
+
+    println(set1|set2)
   }
 
 

@@ -55,7 +55,7 @@ object Feature {
     val userPerOrdProdCnt = orders.join(ordProdCnt,"order_id")
       .groupBy("user_id").agg(avg("count").as("u_avg_ord_prods"))
 
-//    用户特征合并
+//    用户特征合并:用户购买的商品数量，用户平均每个订单有多少商品
     val userFeat = userPerOrdProdCnt.join(userProRcdSize,"user_id")
       .join(userGap,"user_id")
 

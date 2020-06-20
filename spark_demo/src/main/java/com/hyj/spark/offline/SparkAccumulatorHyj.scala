@@ -62,7 +62,7 @@ object SparkAccumulatorHyj {
       * @return
       */
     override def copy(): AccumulatorV2[String, util.ArrayList[String]] = {
-      this
+      new WordAccumulator
     }
 
     /**

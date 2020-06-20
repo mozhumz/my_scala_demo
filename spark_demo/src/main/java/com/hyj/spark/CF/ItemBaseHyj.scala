@@ -71,10 +71,9 @@ object ItemBaseHyj {
       val user_ids = row.getAs[mutable.WrappedArray[String]]("user_ids").toSet
       val user_ids_j = row.getAs[mutable.WrappedArray[String]]("user_ids_j").toSet
       val sim_count = (user_ids & user_ids_j).size.toDouble
-      val count = row.getAs[Long]("count").toDouble
-      val count_j = row.getAs[Long]("count_j").toDouble
+      val sum_count=(user_ids|user_ids_j).size
 
-      (row.getAs[String]("item_id"), row.getAs[String]("item_id_j"), sim_count / (count + count_j))
+      (row.getAs[String]("item_id"), row.getAs[String]("item_id_j"), sim_count / sum_count)
     }).selectExpr("_1 as item_id", "_2 as item_id_j", "_3 as sim")
     //    item_sim_df.show(false)
     /**
