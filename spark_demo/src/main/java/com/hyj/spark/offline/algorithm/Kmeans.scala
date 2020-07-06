@@ -1,4 +1,4 @@
-package com.hyj.spark.offline
+package com.hyj.spark.offline.algorithm
 
 import com.huaban.analysis.jieba.JiebaSegmenter.SegMode
 import com.huaban.analysis.jieba.{JiebaSegmenter, SegToken}
