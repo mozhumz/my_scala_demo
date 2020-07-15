@@ -9,7 +9,7 @@ import org.apache.spark.ml.clustering.KMeans
 import org.apache.spark.ml.evaluation.ClusteringEvaluator
 import org.apache.spark.ml.feature.{HashingTF, IDF}
 import org.apache.spark.sql.functions.{col, udf}
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.{Column, DataFrame, SparkSession}
 
 object Kmeans {
   def main(args: Array[String]): Unit = {
@@ -35,7 +35,12 @@ object Kmeans {
         val segV = seg.value
         segV.process(sentence.toString,SegMode.INDEX)
           .toArray().map(_.asInstanceOf[SegToken].word)
-          .filter(_.length>1)
+          .filter(
+            x=>{
+              x
+              x.length>1
+            }
+          )
 //          .mkString(" ")
       }
       df.withColumn("seg",jieba_udf(col(colname)))
@@ -83,7 +88,7 @@ object Kmeans {
 
     println("cluster Centers:"+model.clusterCenters.length)
 
-
+//    sparsevector （size,[所有不为0单词index]，[values]）
     model.clusterCenters.map(v=>v.toSparse).foreach(println)
 
 //    为什么中心点会有这么多值
