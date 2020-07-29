@@ -86,6 +86,7 @@ object ItemBaseHyj {
       val set_braod: Broadcast[mutable.Set[String]] = spark.sparkContext.broadcast(item_set)
       df.where("user_id=385").foreach(row=>{
         set_braod.value.add(row.getAs[String]("item_id"))
+        println()
       })
 
     val rec_item_df: DataFrame = df.where("user_id=385").join(item_sim_df, "item_id")
