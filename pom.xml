@@ -12,6 +12,8 @@
         <module>spark_demo</module>
         <module>flume_demo</module>
         <module>flink_demo</module>
+        <module>spark1.6</module>
+        <module>algorithm_demo</module>
     </modules>
 
     <properties>

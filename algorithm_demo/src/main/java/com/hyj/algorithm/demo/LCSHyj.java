@@ -1,4 +1,4 @@
-package com.hyj.algorithm;
+package com.hyj.algorithm.demo;
 
 /**
  * LCS练习

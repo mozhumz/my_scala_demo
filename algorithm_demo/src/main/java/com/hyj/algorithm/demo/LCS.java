@@ -1,4 +1,4 @@
-package com.hyj.algorithm;
+package com.hyj.algorithm.demo;
 
 /**
  * LongestCommonSubsequence 最长公共子序列
