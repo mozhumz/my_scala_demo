@@ -17,40 +17,67 @@ public class CommonAlgorithm {
      */
     @Test
     public void twoSum() {
-        int[] arr = {3, 2,4};
+        int[] arr = {3,3, 1, 1, 5, 5};
         int target = 6;
-        Map<Integer,List<Integer>> map = new HashMap<>();
+        //每个元素进行登记
+        Map<Integer, List<Integer>> map = new HashMap<>();
         for (int i = 0; i < arr.length; i++) {
-            Integer key=target - arr[i];
-            List<Integer>list=map.get(key);
-            if(list==null){
-                list=new ArrayList<>();
+            //每个元素的相反数为key value=元素下标
+            Integer key = target - arr[i];
+            List<Integer> list = map.get(key);
+            if (list == null) {
+                list = new ArrayList<>();
             }
             list.add(i);
-            map.put(key,list);
+            map.put(key, list);
         }
         ArrayList<Integer> list = new ArrayList<>();
 
         for (int i = 0; i < arr.length; i++) {
-            if(list.contains(i)){
+            if (list.contains(i)) {
                 continue;
             }
-            if (map.get(arr[i]) != null ) {
-                if(map.get(arr[i]).size()>1){
-                    list.addAll(map.get(arr[i]));
-                    continue;
+            if (map.get(arr[i]) != null) {
+                if (map.get(arr[i]).size() == 1 && map.get(arr[i]).contains(i)) continue;
+                //添加相反数的下标
+                list.addAll(map.get(arr[i]));
+                //添加所有等值元素的下标
+                if (arr[i] != arr[map.get(arr[i]).get(0)]) {
+                    list.addAll(map.get(arr[map.get(arr[i]).get(0)]));
                 }
-                if(map.get(arr[i]).contains(i))continue;
-                list.add(i);
             }
         }
         int[] res = new int[list.size()];
         for (int i = 0; i < list.size(); i++) {
             res[i] = list.get(i);
         }
-        System.out.println(list);
+//        System.out.println(list);
+        twoSum(arr,6);
 
     }
+
+    public int[] twoSum(int[] nums, int target) {
+        Map<Integer, List<Integer>> map = new HashMap<>();
+        List<Integer>res=new ArrayList<>();
+        for(int i = 0; i< nums.length; i++) {
+            if(res.contains(i))continue;
+            if(map.containsKey(target - nums[i])) {
+                res.add(i);
+                if(res.contains(map.get(target-nums[i]).get(0)))continue;
+                res.addAll(map.get(target-nums[i]));
+                continue;
+            }
+            List<Integer>list=map.get(nums[i]);
+            if(list==null){
+                list=new ArrayList<>();
+            }
+            list.add(i);
+            map.put(nums[i], list);
+        }
+        System.out.println(res);
+        return new int[] {-1,-1};
+    }
+
 
     /**
      * 给你一个包含 n 个整数的数组 nums,判断 nums 中是否存在三个元素 a,b,c ,
