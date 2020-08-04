@@ -17,7 +17,7 @@ public class CommonAlgorithm {
      */
     @Test
     public void twoSum() {
-        int[] arr = {3,3, 1, 1, 5, 5};
+        int[] arr = {3, 3, 1, 1, 5, 5};
         int target = 6;
         //每个元素进行登记
         Map<Integer, List<Integer>> map = new HashMap<>();
@@ -52,30 +52,30 @@ public class CommonAlgorithm {
             res[i] = list.get(i);
         }
 //        System.out.println(list);
-        twoSum(arr,6);
+        twoSum(arr, 6);
 
     }
 
     public int[] twoSum(int[] nums, int target) {
         Map<Integer, List<Integer>> map = new HashMap<>();
-        List<Integer>res=new ArrayList<>();
-        for(int i = 0; i< nums.length; i++) {
-            if(res.contains(i))continue;
-            if(map.containsKey(target - nums[i])) {
+        List<Integer> res = new ArrayList<>();
+        for (int i = 0; i < nums.length; i++) {
+            if (res.contains(i)) continue;
+            if (map.containsKey(target - nums[i])) {
                 res.add(i);
-                if(res.contains(map.get(target-nums[i]).get(0)))continue;
-                res.addAll(map.get(target-nums[i]));
+                if (res.contains(map.get(target - nums[i]).get(0))) continue;
+                res.addAll(map.get(target - nums[i]));
                 continue;
             }
-            List<Integer>list=map.get(nums[i]);
-            if(list==null){
-                list=new ArrayList<>();
+            List<Integer> list = map.get(nums[i]);
+            if (list == null) {
+                list = new ArrayList<>();
             }
             list.add(i);
             map.put(nums[i], list);
         }
         System.out.println(res);
-        return new int[] {-1,-1};
+        return new int[]{-1, -1};
     }
 
 
@@ -137,4 +137,124 @@ public class CommonAlgorithm {
         }
         System.out.println(res);
     }
+
+    /**
+     * 给出两个 非空 的链表用来表示两个非负的整数。其中，它们各自的位数是按照 逆序 的方式存储的，并且它们的每个节点只能存储 一位 数字。
+     * 如果，我们将这两个数相加起来，则会返回一个新的链表来表示它们的和。
+     * 您可以假设除了数字 0 之外，这两个数都不会以 0 开头。
+     * 示例：
+     * 输入：(2 -> 4 -> 3) + (5 -> 6 -> 4)
+     * 输出：7 -> 0 -> 8
+     * 原因：342 + 465 = 807
+     */
+    @Test
+    public void addTwoNums() {
+
+
+        ListNode l1 = new ListNode(9);
+//        l1.next = new ListNode(4);
+//        l1.next.next = new ListNode(3);
+
+        ListNode l2 = new ListNode(1);
+        l2.next = new ListNode(9);
+        l2.next.next = new ListNode(9);
+        l2.next.next.next = new ListNode(9);
+        l2.next.next.next.next = new ListNode(9);
+        l2.next.next.next.next.next = new ListNode(9);
+
+        l2.next.next.next.next.next.next = new ListNode(9);
+        l2.next.next.next.next.next.next.next = new ListNode(9);
+        l2.next.next.next.next.next.next.next.next = new ListNode(9);
+        l2.next.next.next.next.next.next.next.next.next = new ListNode(9);
+
+        List<Integer> link = new LinkedList<>();
+
+        Map<Integer,Integer>map1=new LinkedHashMap<>();
+        setMap(map1,l1);
+        Map<Integer,Integer>map2=new LinkedHashMap<>();
+        setMap(map2,l2);
+        setLink(map1,map2,link);
+        ListNode res=setListNode(null,link);
+        System.out.println();
+    }
+
+    private ListNode setListNode(ListNode listNode, List<Integer> link) {
+        if (!link.isEmpty()) {
+            ListNode tmp = null;
+            for (int i =0; i <link.size(); i++) {
+                if (listNode == null) {
+                    listNode = new ListNode(link.get(i));
+                    tmp = listNode;
+                } else {
+                    tmp.next = new ListNode(link.get(i));
+                    tmp = tmp.next;
+                }
+            }
+        }
+        return listNode;
+    }
+
+    private void setMap(Map<Integer,Integer>map,ListNode l1){
+        boolean flag = l1 != null;
+        ListNode node = l1;
+        int i=1;
+        while (flag) {
+//            list1.add(node.val);
+            map.put(i,node.val);
+            i++;
+            node = node.next;
+            flag = node != null;
+        }
+    }
+
+    private void setLink(Map<Integer, Integer> map1, Map<Integer, Integer> map2, List<Integer> link) {
+        //423 1->3 2->2 3->4 //9 1->9
+        if (!map1.isEmpty() && !map2.isEmpty()) {
+            int i = 0;
+            int tmpAdd = 0;
+            int n = 0;
+            Integer n2;
+            if(map1.size()>map2.size()){
+                addLink(map1, map2, link, tmpAdd);
+            }else {
+                addLink(map2, map1, link, tmpAdd);
+            }
+        }
+        System.out.println(link);
+    }
+
+    private void addLink(Map<Integer, Integer> map1, Map<Integer, Integer> map2, List<Integer> link, int tmpAdd) {
+        Integer n2;
+        int n;
+        for (Map.Entry<Integer, Integer> entry : map1.entrySet()) {
+            n2 = map2.get(entry.getKey());
+            if (n2 == null) {
+                n2 = 0;
+            }
+            //同位相加
+            n = entry.getValue() + n2 + tmpAdd;
+            //进位数
+            tmpAdd = n / 10;
+            //新的数放入
+            link.add(n%10);
+
+        }
+        if(tmpAdd!=0){
+            link.add(tmpAdd);
+        }
+    }
+
+
+
+
+
+    class ListNode {
+        int val;
+        ListNode next;
+
+        ListNode(int x) {
+            val = x;
+        }
+    }
+
 }
