@@ -167,21 +167,20 @@ public class CommonAlgorithm {
         l2.next.next.next.next.next.next.next.next = new ListNode(9);
         l2.next.next.next.next.next.next.next.next.next = new ListNode(9);
 
-        List<Integer> link = new LinkedList<>();
 
-        Map<Integer,Integer>map1=new LinkedHashMap<>();
-        setMap(map1,l1);
-        Map<Integer,Integer>map2=new LinkedHashMap<>();
-        setMap(map2,l2);
-        setLink(map1,map2,link);
-        ListNode res=setListNode(null,link);
+        Map<Integer, Integer> map1 = new LinkedHashMap<>();
+        setMap(map1, l1);
+        Map<Integer, Integer> map2 = new LinkedHashMap<>();
+        setMap(map2, l2);
+        ListNode res=setLink(map1, map2);
         System.out.println();
+//        ListNode res = setListNode(null, link);
     }
 
     private ListNode setListNode(ListNode listNode, List<Integer> link) {
         if (!link.isEmpty()) {
             ListNode tmp = null;
-            for (int i =0; i <link.size(); i++) {
+            for (int i = 0; i < link.size(); i++) {
                 if (listNode == null) {
                     listNode = new ListNode(link.get(i));
                     tmp = listNode;
@@ -194,38 +193,38 @@ public class CommonAlgorithm {
         return listNode;
     }
 
-    private void setMap(Map<Integer,Integer>map,ListNode l1){
+    private void setMap(Map<Integer, Integer> map, ListNode l1) {
         boolean flag = l1 != null;
         ListNode node = l1;
-        int i=1;
+        int i = 1;
         while (flag) {
 //            list1.add(node.val);
-            map.put(i,node.val);
+            map.put(i, node.val);
             i++;
             node = node.next;
             flag = node != null;
         }
     }
 
-    private void setLink(Map<Integer, Integer> map1, Map<Integer, Integer> map2, List<Integer> link) {
+    private ListNode setLink(Map<Integer, Integer> map1, Map<Integer, Integer> map2) {
+        ListNode listNode=null;
         //423 1->3 2->2 3->4 //9 1->9
         if (!map1.isEmpty() && !map2.isEmpty()) {
-            int i = 0;
             int tmpAdd = 0;
-            int n = 0;
-            Integer n2;
-            if(map1.size()>map2.size()){
-                addLink(map1, map2, link, tmpAdd);
-            }else {
-                addLink(map2, map1, link, tmpAdd);
+            if (map1.size() > map2.size()) {
+                listNode=addLink(map1, map2,  tmpAdd);
+            } else {
+                listNode=addLink(map2, map1,  tmpAdd);
             }
         }
-        System.out.println(link);
+        return listNode;
     }
 
-    private void addLink(Map<Integer, Integer> map1, Map<Integer, Integer> map2, List<Integer> link, int tmpAdd) {
+    private ListNode addLink(Map<Integer, Integer> map1, Map<Integer, Integer> map2, int tmpAdd) {
         Integer n2;
         int n;
+        ListNode tmp = null;
+        ListNode listNode = null;
         for (Map.Entry<Integer, Integer> entry : map1.entrySet()) {
             n2 = map2.get(entry.getKey());
             if (n2 == null) {
@@ -236,16 +235,23 @@ public class CommonAlgorithm {
             //进位数
             tmpAdd = n / 10;
             //新的数放入
-            link.add(n%10);
+//            link.add(n % 10);
+
+            if (listNode == null) {
+                listNode = new ListNode(n % 10);
+                tmp = listNode;
+            } else {
+                tmp.next = new ListNode(n % 10);
+                tmp = tmp.next;
+            }
 
         }
-        if(tmpAdd!=0){
-            link.add(tmpAdd);
+        if (tmpAdd != 0) {
+//            link.add(tmpAdd);
+            tmp.next = new ListNode(tmpAdd);
         }
+        return listNode;
     }
-
-
-
 
 
     class ListNode {
