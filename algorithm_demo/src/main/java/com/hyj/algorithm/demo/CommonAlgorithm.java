@@ -2,7 +2,6 @@ package com.hyj.algorithm.demo;
 
 import org.junit.Test;
 
-import java.beans.beancontext.BeanContext;
 import java.util.*;
 
 public class CommonAlgorithm {
@@ -173,7 +172,7 @@ public class CommonAlgorithm {
         setMap(map1, l1);
         Map<Integer, Integer> map2 = new LinkedHashMap<>();
         setMap(map2, l2);
-        ListNode res=setLink(map1, map2);
+        ListNode res = setLink(map1, map2);
         System.out.println();
 //        ListNode res = setListNode(null, link);
     }
@@ -208,14 +207,14 @@ public class CommonAlgorithm {
     }
 
     private ListNode setLink(Map<Integer, Integer> map1, Map<Integer, Integer> map2) {
-        ListNode listNode=null;
+        ListNode listNode = null;
         //423 1->3 2->2 3->4 //9 1->9
         if (!map1.isEmpty() && !map2.isEmpty()) {
             int tmpAdd = 0;
             if (map1.size() > map2.size()) {
-                listNode=addLink(map1, map2,  tmpAdd);
+                listNode = addLink(map1, map2, tmpAdd);
             } else {
-                listNode=addLink(map2, map1,  tmpAdd);
+                listNode = addLink(map2, map1, tmpAdd);
             }
         }
         return listNode;
@@ -282,29 +281,29 @@ public class CommonAlgorithm {
      *      请注意，你的答案必须是 子串 的长度，"pwke" 是一个子序列，不是子串。
      */
     @Test
-    public void lengthOfLongestSubstring(){
+    public void lengthOfLongestSubstring() {
         lengthOfLongestSubstring2("abcabcdde");
-        String str="abcaqwert";
-        Map<Character,Integer>maxMap=new LinkedHashMap<>();
+        String str = "abcaqwert";
+        Map<Character, Integer> maxMap = new LinkedHashMap<>();
         maxMap = lengthOfLongestSubstring3(str, maxMap);
         System.out.println(maxMap);
     }
 
     private Map<Character, Integer> lengthOfLongestSubstring3(String str, Map<Character, Integer> maxMap) {
-        Map<Character,Integer>map=new LinkedHashMap<>();
-        int maxLen=0;
-        for(int i = 0; i < str.length(); i ++){
-            for(int j = i; j < str.length(); j ++){
-                if(map.containsKey(str.charAt(j))){
+        Map<Character, Integer> map = new LinkedHashMap<>();
+        int maxLen = 0;
+        for (int i = 0; i < str.length(); i++) {
+            for (int j = i; j < str.length(); j++) {
+                if (map.containsKey(str.charAt(j))) {
                     break;
                 }
-                map.put(str.charAt(j),j);
+                map.put(str.charAt(j), j);
             }
-            if(map.size()>maxLen){
-                maxLen=map.size();
-                maxMap= map;
+            if (map.size() > maxLen) {
+                maxLen = map.size();
+                maxMap = map;
             }
-            map=new HashMap<>();
+            map = new HashMap<>();
         }
         return maxMap;
     }
@@ -313,27 +312,61 @@ public class CommonAlgorithm {
     public int lengthOfLongestSubstring2(String s) {
         int n = s.length(), ans = 0;
         //最长字符串-起始下标
-        int s1=0;
+        int s1 = 0;
         //最长字符串-结尾下标
-        int s2=0;
+        int s2 = 0;
         Map<Character, Integer> map = new HashMap<>();
         int start = 0;
         for (int end = 0; end < n; end++) {
             char alpha = s.charAt(end);
             if (map.containsKey(alpha)) {
-                start = Math.max(map.get(alpha)+1, start);
+                start = Math.max(map.get(alpha) + 1, start);
             }
-            if(end-start+1>ans){
-                ans=end-start+1;
-                s1=start;
-                s2=end;
+            if (end - start + 1 > ans) {
+                ans = end - start + 1;
+                s1 = start;
+                s2 = end;
             }
 //            ans = Math.max(ans, end - start + 1);
-            map.put(s.charAt(end), end );
+            map.put(s.charAt(end), end);
         }
         return ans;
     }
 
+    /**
+     * 给出一个 32 位的有符号整数，你需要将这个整数中每位上的数字进行反转。
+     *
+     * 示例 1:
+     *
+     * 输入: 123
+     * 输出: 321
+     *  示例 2:
+     *
+     * 输入: -123
+     * 输出: -321
+     * 示例 3:
+     *
+     * 输入: 120
+     * 输出: 21
+     * 注意:
+     * 假设我们的环境只能存储得下 32 位的有符号整数，则其数值范围为 [−231,  231 − 1]。
+     * 请根据这个假设，如果反转后整数溢出那么就返回 0。
+     *
+     */
+    @Test
+    public void reverse() {
+        int x = -123;
+        int res = 0;
+        while (x != 0) {
+            int n = x % 10;
+            if (res > Integer.MAX_VALUE / 10 || res<Integer.MIN_VALUE/10) {
+                res=0;
+            }
+            res = res * 10 + n;
+            x /= 10;
+        }
+        System.out.println(res);
+    }
 
 
 }
