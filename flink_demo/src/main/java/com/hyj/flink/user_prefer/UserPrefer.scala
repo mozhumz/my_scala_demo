@@ -1,7 +1,6 @@
 package com.hyj.flink.user_prefer
 
 import com.alibaba.fastjson.JSON
-import com.badou.config.MysqlConf
 import org.apache.flink.api.common.functions.AggregateFunction
 import org.apache.flink.streaming.api.scala._
 import org.apache.flink.streaming.api.windowing.time.Time

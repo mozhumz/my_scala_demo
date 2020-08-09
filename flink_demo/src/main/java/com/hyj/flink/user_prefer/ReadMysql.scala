@@ -1,6 +1,6 @@
 package com.hyj.flink.user_prefer
 
-import com.badou.config.MysqlConf
+import com.hyj.flink.config.MysqlConf
 import org.json4s.native.Serialization
 
 import scala.collection.mutable

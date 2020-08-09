@@ -1,5 +1,7 @@
 package com.hyj.flink
 
+import com.hyj.flink.config.MysqlConf
+
 import scala.io.Source
 
 
