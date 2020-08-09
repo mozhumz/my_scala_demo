@@ -16,6 +16,7 @@ object FlinkDataSetHyj {
     .map(line=>(line.split(" ")(1),1L)).keyBy(0)
       .sum(1)
       .print()
+    data.flatMap(_.split(" ")).map((_,1)).keyBy(0)
 
     env.execute()
   }
