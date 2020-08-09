@@ -335,23 +335,22 @@ public class CommonAlgorithm {
 
     /**
      * 给出一个 32 位的有符号整数，你需要将这个整数中每位上的数字进行反转。
-     *
+     * <p>
      * 示例 1:
-     *
+     * <p>
      * 输入: 123
      * 输出: 321
      *  示例 2:
-     *
+     * <p>
      * 输入: -123
      * 输出: -321
      * 示例 3:
-     *
+     * <p>
      * 输入: 120
      * 输出: 21
      * 注意:
      * 假设我们的环境只能存储得下 32 位的有符号整数，则其数值范围为 [−231,  231 − 1]。
      * 请根据这个假设，如果反转后整数溢出那么就返回 0。
-     *
      */
     @Test
     public void reverse() {
@@ -359,8 +358,8 @@ public class CommonAlgorithm {
         int res = 0;
         while (x != 0) {
             int n = x % 10;
-            if (res > Integer.MAX_VALUE / 10 || res<Integer.MIN_VALUE/10) {
-                res=0;
+            if (res > Integer.MAX_VALUE / 10 || res < Integer.MIN_VALUE / 10) {
+                res = 0;
             }
             res = res * 10 + n;
             x /= 10;
@@ -369,4 +368,34 @@ public class CommonAlgorithm {
     }
 
 
+    @Test
+    public void sortedArrayToBST() {
+        int[] nums={-10,-3,-1,0,1,5,9};
+        TreeNode treeNode=sortedArrayToBST(nums,0,nums.length-1);
+        System.out.println(true);
+    }
+
+    public class TreeNode {
+        int val;
+        TreeNode left;
+        TreeNode right;
+
+        TreeNode(int x) {
+            val = x;
+        }
+    }
+
+    public TreeNode sortedArrayToBST(int[] nums, int left, int right) {
+        if (left > right) {
+            return null;
+        }
+
+        // 总是选择中间位置左边的数字作为根节点
+        int mid = (left + right) / 2;
+
+        TreeNode root = new TreeNode(nums[mid]);
+        root.left = sortedArrayToBST(nums, left, mid - 1);
+        root.right = sortedArrayToBST(nums, mid + 1, right);
+        return root;
+    }
 }
