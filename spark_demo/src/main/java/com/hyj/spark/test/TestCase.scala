@@ -46,6 +46,9 @@ object TestCase {
     println(set1|set2)
   }
 
+  def testJoin:Unit={
+
+  }
 
 
 }
