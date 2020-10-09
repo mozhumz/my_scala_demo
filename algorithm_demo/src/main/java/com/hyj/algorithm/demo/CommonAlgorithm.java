@@ -442,7 +442,8 @@ public class CommonAlgorithm {
      */
     @Test
     public void isPalindrome() {
-        System.out.println(isPalindrome(12332));
+        System.out.println(isPalindrome(1231321));
+        System.out.println(isPalindrome2(1231321));
     }
 
     public boolean isPalindrome(int num) {
@@ -479,7 +480,7 @@ public class CommonAlgorithm {
         return list;
     }
 
-    public boolean isPalindrom2(int num) {
+    public boolean isPalindrome2(int num) {
         if (num < 0) {
             return false;
         }
