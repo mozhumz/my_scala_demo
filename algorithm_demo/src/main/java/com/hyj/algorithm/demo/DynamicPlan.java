@@ -98,6 +98,7 @@ public class DynamicPlan {
      * @return
      */
     public static int robotWalkGrid2(int m, int n) {
+        int count = 0;
         if (m <= 1 && n <= 1) {
             return 0;
         }
@@ -107,18 +108,63 @@ public class DynamicPlan {
         int[][] dp = new int[m][n];
         for (int i = 0; i < m; i++) {
             dp[i][0] = 1;
+            count++;
         }
         for (int j = 0; j < n; j++) {
             dp[0][j] = 1;
+            count++;
         }
         for (int i = 1; i < m; i++) {
             for (int j = 1; j < n; j++) {
                 dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+                count++;
             }
         }
+        System.out.println("robotWalkGrid2:" + count);
 
         return dp[m - 1][n - 1];
     }
+
+    /**
+     * 机器人走网格优化
+     * 定义dp[i]为初始位置(0,0)到某一行第i列的路径数
+     * 则当前行的dp[i]= 上一行的dp[i] + 当前行的dp[i-1]
+     * 初始值 第一行的dp[i]=1
+     *
+     * @param m
+     * @param n
+     * @return
+     */
+    public static int robotWalkGrid2Better(int m, int n) {
+        //时间复杂度
+        int count = 0;
+        if (m <= 1 && n <= 1) {
+            return 1;
+        }
+        if (m == 1 || n == 1) {
+            return 1;
+        }
+        //创建一维dp数组
+        int[] dp = new int[n];
+        //初始化第一行
+        for (int j = 0; j < n; j++) {
+            dp[j] = 1;
+            count++;
+        }
+        for (int i = 1; i < m; i++) {
+            //第i行0列的值为1
+            dp[0] = 1;
+            for (int j = 1; j < n; j++) {
+                dp[j] = dp[j] + dp[j - 1];
+                count++;
+            }
+        }
+        System.out.println("robotWalkGrid2Better:" + count);
+
+
+        return dp[n - 1];
+    }
+
 
     /**
      * 最优路径选择
@@ -144,10 +190,10 @@ public class DynamicPlan {
      * @param grid
      * @return
      */
-    public static  int minSumGrid(int[][] grid){
-        int i=grid.length-1;
-        int j=grid[0].length-1;
-        return minSumGrid(grid,i,j);
+    public static int minSumGrid(int[][] grid) {
+        int i = grid.length - 1;
+        int j = grid[0].length - 1;
+        return minSumGrid(grid, i, j);
     }
 
     public static int minSumGrid(int[][] grid, int i, int j) {
@@ -162,11 +208,11 @@ public class DynamicPlan {
             return minSumGrid(grid, i - 1, 0) + grid[i][0];
         }
         //递推公式 dp[i][j]=min(dp[i-1][j],dp[i][j-1])+arr[i][j]
-        return minNum(minSumGrid(grid,i-1,j),minSumGrid(grid,i,j-1))+grid[i][j];
+        return minNum(minSumGrid(grid, i - 1, j), minSumGrid(grid, i, j - 1)) + grid[i][j];
     }
 
-    public static int minNum(int a,int b){
-        if(a<b){
+    public static int minNum(int a, int b) {
+        if (a < b) {
             return a;
         }
         return b;
@@ -174,44 +220,163 @@ public class DynamicPlan {
 
     /**
      * 非递归实现
+     *
      * @param grid
      * @return
      */
-    public static  int minSumGrid2(int[][] grid){
-        int i=grid.length-1;
-        int j=grid[0].length-1;
-        int[][]dp=new int[i+1][j+1];
-        if(i<=0&&j<=0){
+    public static int minSumGrid2(int[][] grid) {
+        int i = grid.length - 1;
+        int j = grid[0].length - 1;
+        int[][] dp = new int[i + 1][j + 1];
+        if (i <= 0 && j <= 0) {
             return grid[0][0];
         }
 
         //初始化 dp[0][j] dp[i][0]
-        dp[0][0]=grid[0][0];
-        for(int k=1;k<=i;k++){
-            dp[k][0]=grid[k][0]+dp[k-1][0];
+        dp[0][0] = grid[0][0];
+        for (int k = 1; k <= i; k++) {
+            dp[k][0] = grid[k][0] + dp[k - 1][0];
         }
-        for(int l=1;l<=j;l++){
-            dp[0][l]=grid[0][l]+dp[0][l-1];
+        for (int l = 1; l <= j; l++) {
+            dp[0][l] = grid[0][l] + dp[0][l - 1];
         }
         //递推公式dp[i][j]=min(dp[i-1][j],dp[i][j-1])+arr[i][j]
-        for(int p=1;p<=i;p++){
-            for (int q=1;q<=j;q++){
-                dp[p][q]=minNum(dp[p-1][q],dp[p][q-1])+grid[p][q];
+        for (int p = 1; p <= i; p++) {
+            for (int q = 1; q <= j; q++) {
+                dp[p][q] = minNum(dp[p - 1][q], dp[p][q - 1]) + grid[p][q];
             }
         }
 
         return dp[i][j];
     }
 
+    /**
+     * 给定两个单词 word1 和 word2，计算出将 word1 转换成 word2 所使用的最少操作数 。
+     * 你可以对一个单词进行如下三种操作：
+     * 插入一个字符 删除一个字符 替换一个字符
+     * 示例：
+     * 输入: word1 = "horse", word2 = "ros"
+     * 输出: 3
+     * 解释:
+     * horse -> rorse (将 'h' 替换为 'r')
+     * rorse -> rose (删除 'r')
+     * rose -> ros (删除 'e')
+     * 分析：
+     * 定义 dp[i] [j]的含义为：当字符串 word1 的长度为 i，字符串 word2 的长度为 j 时，
+     * 将 word1 转化为 word2 所使用的最少操作次数为 dp[i] [j]
+     * 一、如果我们 word1[i] 与 word2 [j] 相等，这个时候不需要进行任何操作，显然有 dp[i] [j] = dp[i-1] [j-1]
+     * 二、如果我们 word1[i] 与 word2 [j] 不相等，这个时候我们就必须进行调整，而调整的操作有 3 种，我们要选择一种。
+     * 三种操作对应的关系试如下（注意字符串与字符的区别）：
+     * （1）、如果把字符 word1[i] 替换成与 word2[j] 相等，则有 dp[i] [j] = dp[i-1] [j-1] + 1;
+     * （2）、如果在字符串 word1末尾插入一个与 word2[j] 相等的字符，则有 dp[i] [j] = dp[i] [j-1] + 1;
+     * （3）、如果把字符 word1[i] 删除，则有 dp[i] [j] = dp[i-1] [j] + 1;
+     * 那么我们应该选择一种操作，使得 dp[i] [j] 的值最小，显然有
+     * if word[i-1]!=word[j-1]
+     * dp[i] [j] = min(dp[i-1] [j-1]，dp[i] [j-1]，dp[[i-1] [j]]) + 1;
+     * else
+     * dp[i] [j]=dp[i-1] [j-1]
+     * 初始值 dp[i][0]=i dp[0][j]=j
+     *
+     * @param word1
+     * @param word2
+     * @return
+     */
+    public static int minWord1ToWord2(String word1, String word2) {
+        if (word1 == null) {
+            word1 = "";
+        }
+        if (word2 == null) {
+            word2 = "";
+        }
+        int i = word1.length();
+        int j = word2.length();
+        //定义dp数组
+        int[][] dp = new int[i + 1][j + 1];
+        //初始值
+        for (int p = 0; p <= i; p++) {
+            dp[p][0] = p;
+        }
+        for (int p = 0; p <= j; p++) {
+            dp[0][p] = p;
+        }
+
+        for (int p = 1; p <= i; p++) {
+            for (int q = 1; q <= j; q++) {
+                if (word1.charAt(p - 1) == word2.charAt(q - 1)) {
+                    dp[p][q] = dp[p - 1][q - 1];
+                } else {
+                    dp[p][q] = Integer.min(Integer.min(dp[p - 1][q - 1], dp[p - 1][q]), dp[p][q - 1]) + 1;
+                }
+            }
+        }
+
+        return dp[i][j];
+    }
+
+    /**
+     * 定义dp[j]为：当字符串 word1 的长度为 i，字符串 word2 的长度为 j 时，
+     * 将 word1 转化为 word2 所使用的最少操作次数为 dp[j]
+     * 则dp[j_pre]为上一行第j列的最少操作数
+     * if word1[i]!=word2[j]
+     * dp[j]= min(dp[j_pre], dp[j-1], dp[j_pre-1])+1
+     * else
+     * dp[j]= dp[j_pre-1]
+     * 第一行初始值 dp[j]=j
+     *
+     * @param word1
+     * @param word2
+     * @return
+     */
+    public static int minWord1ToWord2Better(String word1, String word2) {
+        if (word1 == null) {
+            word1 = "";
+        }
+        if (word2 == null) {
+            word2 = "";
+        }
+        int i = word1.length();
+        int j = word2.length();
+        //定义dp一维数组
+        int[] dp = new int[j + 1];
+        //第一行初始化
+        for (int q = 0; q <= j; q++) {
+            dp[q] = q;
+        }
+
+        for (int p = 1; p <= i; p++) {
+            int temp=dp[0];
+            //第p行0列的值为p
+            dp[0] = p;
+            for (int q = 1; q <= j; q++) {
+                //上一行第q-1列的值
+                int preQ1 = temp;
+//              上一行第q列的值
+                temp=dp[q];
+                if (word1.charAt(p - 1) == word2.charAt(q - 1)) {
+                    dp[q] = preQ1;
+                } else {
+//                    dp[q]为上一行第q列的值  dp[q - 1]为当前行第q-1列的值
+                    dp[q] = Integer.min(Integer.min(dp[q], preQ1), dp[q - 1]) + 1;
+                }
+            }
+        }
+
+
+        return dp[j];
+    }
 
 
     public static void main(String[] args) {
 //        System.out.println(frogJumpSteps(20));
 //        System.out.println(robotWalkGrid(9, 3));
-//        System.out.println(robotWalkGrid2(9, 3));
-        int[][]arr={{1,3,1},{1,5,1},{4,2,1}};
-        int[][]arr2={{1},{2},{3}};
-        System.out.println(minSumGrid(arr));
-        System.out.println(minSumGrid2(arr));
+        System.out.println(robotWalkGrid2(3, 5));
+        System.out.println(robotWalkGrid2Better(3, 5));
+        int[][] arr = {{1, 3, 1}, {1, 5, 1}, {4, 2, 1}};
+        int[][] arr2 = {{1}, {2}, {3}};
+//        System.out.println(minSumGrid(arr));
+//        System.out.println(minSumGrid2(arr));
+//        System.out.println(minWord1ToWord2("", "abc"));
+        System.out.println(minWord1ToWord2("abc", "abcd"));
+        System.out.println(minWord1ToWord2Better("abc", "abcd"));
     }
 }
