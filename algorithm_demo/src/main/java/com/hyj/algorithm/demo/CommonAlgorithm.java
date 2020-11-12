@@ -427,74 +427,7 @@ public class CommonAlgorithm {
         printTreeNode(treeNode.right);
     }
 
-    /**
-     * 判断一个整数是否是回文数。回文数是指正序（从左向右）和倒序（从右向左）读都是一样的整数。
-     * <p>
-     * 示例 1:
-     * <p>
-     * 输入: 121
-     * 输出: true
-     * 示例 2:
-     * <p>
-     * 输入: -121
-     * 输出: false
-     * 解释: 从左向右读, 为 -121 。 从右向左读, 为 121- 。因此它不是一个回文数。
-     */
-    @Test
-    public void isPalindrome() {
-        System.out.println(isPalindrome(1231321));
-        System.out.println(isPalindrome2(1231321));
-    }
 
-    public boolean isPalindrome(int num) {
-        if (num < 0) {
-            return false;
-        }
-
-        List<Integer> list = getArrByNum(num);
-        int size = list.size();
-        if (size == 1) {
-            return true;
-        }
-        int times = size / 2;
-        for (int i = 0; i < times; i++) {
-            if (!list.get(i).equals(list.get(size - 1 - i))) {
-                return false;
-            }
-        }
-
-
-        return true;
-    }
-
-    private List<Integer> getArrByNum(int num) {
-        List<Integer> list = new ArrayList<>();
-        int a = num;
-        while (true) {
-            list.add(a % 10);
-            a /= 10;
-            if (a == 0) {
-                break;
-            }
-        }
-        return list;
-    }
-
-    public boolean isPalindrome2(int num) {
-        if (num < 0) {
-            return false;
-        }
-        if (num < 10) {
-            return true;
-        }
-        int r = 0;
-        while (num > r) {
-            r = r * 10 + num % 10;
-            num /= 10;
-        }
-
-        return num == r || num == r / 10;
-    }
 
 
 
