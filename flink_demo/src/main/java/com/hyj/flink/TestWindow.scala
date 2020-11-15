@@ -29,9 +29,9 @@ object TestWindow {
 //      .window(EventTimeSessionWindows.withGap(Time.seconds(3)))
       .sum(1).print()
 
-//    data.map((_,1)).keyBy(0)
-////      按照事件时间的翻滚
-//      .window(TumblingEventTimeWindows)
+    data.map((_,1)).keyBy(0)
+//      按照事件时间的翻滚
+      .window(TumblingEventTimeWindows)
 ////    按照事件时间的滑动
 ////      .window(SlidingEventTimeWindows)
 ////      session window

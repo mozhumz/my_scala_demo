@@ -85,13 +85,13 @@ public class LCSHyj {
      * 且往左上↖移动（往左移动一格再往上移动一格），如果左上箭头对应的格子没有箭头，则停止。
      * 以此类推，找出所有左上斜箭头对应的字符，即为LCS
      * if B[i][j]=1
-     *  B[i-1][j-1]
+     * B[i-1][j-1]
      * if B[i][j]=2
-     *  B[i-1][j]
+     * B[i-1][j]
      * if B[i][j]=3
-     *  B[i][j-1]
+     * B[i][j-1]
      * if B[i][j]=0
-     *  return
+     * return
      *
      * @param str1
      * @param str2
@@ -149,8 +149,9 @@ public class LCSHyj {
      * *  B[i-1][j]
      * * if B[i][j]=3
      * *  B[i][j-1]
-     *   if B[i][j]=0
-     *      return
+     * if B[i][j]=0
+     * return
+     *
      * @param str1
      * @param str2
      * @return
@@ -162,12 +163,12 @@ public class LCSHyj {
         int j = B[0].length - 1;
 
         //从右下角开始遍历
-        boolean flag=true;
+        boolean flag = true;
 
-        while (flag){
-            switch (B[i][j]){
+        while (flag) {
+            switch (B[i][j]) {
                 case 1:
-                    res.insert(0,str1.charAt(i-1));
+                    res.insert(0, str1.charAt(i - 1));
                     i--;
                     j--;
                     break;
@@ -178,7 +179,7 @@ public class LCSHyj {
                     j--;
                     break;
                 default:
-                    flag=false;
+                    flag = false;
                     break;
             }
         }
@@ -191,24 +192,65 @@ public class LCSHyj {
         return res.toString();
     }
 
+    /**
+     * 最长公共连续字符串
+     */
+    public static void lccs() {
+        String str1 = new String("abcdesbcdf");
+        String str2 = new String("aebcdfe");
+        byte[] char1 = str1.getBytes();
+        byte[] char2 = str2.getBytes();
+        int len1 = char1.length;
+        int len2 = char2.length;
+        String maxchar = new String("");
+        StringBuffer temp = new StringBuffer(" ");
+        int maxl = 0;
+        for (int i = 0; i < len1; i++) {
+            for (int j = 0; j < len2; j++) {
+                int pos1 = i;
+                int pos2 = j;
+                int l = 0;
+                //temp = new StringBuffer("");
+                temp.delete(0, temp.length());
+                while (char1[pos1] == char2[pos2]) {
+                    l++;
+                    temp.append((char) char1[pos1]);
+                    if (++pos1 > len1 - 1) break;
+                    if (++pos2 > len2 - 1) break;
+                }
+                //System.out.println(""+(++loops)+":"+temp);
+                if (l > maxl) {
+                    maxl = l;
+                    maxchar = temp.toString();
+
+                }
+            }
+        }
+        System.out.println("" + maxl + " " + maxchar);
+    }
+
 
     public static void main(String[] args) {
-        char[] X = {'A', 'B', 'C', 'B', 'D', 'A', 'B'};
-        char[] Y = {'B', 'D', 'C', 'A', 'B', 'A'};
-        String str1 = String.valueOf(X);
-        String str2 = String.valueOf(Y);
-        System.out.println(str1);
-        System.out.println(str2);
-        int n = X.length;
-        int m = Y.length;
-        int[][] matrix = getMatrix(X, Y);
-//        print(matrix, n, m);
-        print(B, n, m);
-        String res = String.valueOf(getLcs(n, m, X, Y));
-        System.out.println(res);
+//        char[] X = {'A', 'B', 'C', 'B', 'D', 'A', 'B'};
+//        char[] Y = {'B', 'D', 'C', 'A', 'B', 'A'};
+//        String str1 = String.valueOf(X);
+//        String str2 = String.valueOf(Y);
+//        System.out.println(str1);
+//        System.out.println(str2);
+//        int n = X.length;
+//        int m = Y.length;
+//        int[][] matrix = getMatrix(X, Y);
+////        print(matrix, n, m);
+//        print(B, n, m);
+//        String res = String.valueOf(getLcs(n, m, X, Y));
+//        System.out.println(res);
+//
+//        System.out.println(maxLengthOfLCS(str1, str2));
+//        print(B, n, m);
+//        System.out.println(getLCSByB(str1,str2));
+        lccs();
 
-        System.out.println(maxLengthOfLCS(str1, str2));
-        print(B, n, m);
-        System.out.println(getLCSByB(str1,str2));
     }
+
+
 }
