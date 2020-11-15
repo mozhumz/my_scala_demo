@@ -207,6 +207,7 @@ public class SparkJavaTest {
                     }
                 })
                 .join(skewedRdd2);
+
         System.out.println("join rdd:");
         join.foreach(new VoidFunction<Tuple2<String, Tuple2<Long, Long>>>() {
             @Override
