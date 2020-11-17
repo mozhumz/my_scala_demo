@@ -31,7 +31,7 @@ object SparkRDDHyj {
     //    dependencyRdd(conf)
     //    dbMysqlRdd(conf)
     //    dbHbaseRdd(conf)
-    broadcast(conf)
+    joinTest(conf)
   }
 
   /**
@@ -392,6 +392,14 @@ object SparkRDDHyj {
     putRdd.saveAsHadoopDataset(jobConf)
 
     sc.stop()
+  }
+
+  def joinTest(sparkConf: SparkConf): Unit = {
+    val sc = new SparkContext(sparkConf)
+    val rdd1 = sc.makeRDD(List((1, 1), (2,1)), 2)
+    val list = List((1, 3), (2, 2), (3, 4),(1,4))
+    val rdd2 = sc.makeRDD(list, 2)
+    rdd1.join(rdd2).foreach(println)
   }
 
   /**

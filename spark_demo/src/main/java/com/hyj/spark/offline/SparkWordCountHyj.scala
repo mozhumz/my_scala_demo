@@ -12,6 +12,5 @@ object SparkWordCountHyj {
 //    val lines: RDD[String] = ssc.textFile("file:///G:\\idea_workspace\\my_scala_demo\\spark_demo\\input_dir")
     val word_count_rdd: RDD[(String, Int)] = lines.flatMap(_.split(" ")).map((_,1)).reduceByKey(_+_)
     word_count_rdd.collect().foreach(println)
-    word_count_rdd.union()
   }
 }
