@@ -18,6 +18,7 @@ import java.util.*;
  */
 public class SparkJavaTest {
     public static void main(String[] args) {
+
         SparkConf conf = new SparkConf().setMaster("local").setAppName("SparkFlatMapJava")
                 .set("spark.sql.shuffle.partitions","300");
 //        SparkContext sc = session.sparkContext();
@@ -52,6 +53,11 @@ public class SparkJavaTest {
 
     }
 
+    /**
+     * 使用随机前缀和扩容RDD进行join
+     * @param rdd1
+     * @param rdd2
+     */
     private static void randomKeyAndExtend(JavaPairRDD<String, Long> rdd1, JavaPairRDD<String, Long> rdd2){
         // 首先将其中一个key分布相对较为均匀的RDD膨胀100倍。
         JavaPairRDD<String, Long> expandedRDD = rdd1.flatMapToPair(
@@ -113,17 +119,6 @@ public class SparkJavaTest {
 // 对样本数据RDD统计出每个key的出现次数，并按出现次数降序排序。
 // 对降序排序后的数据，取出top 1或者top 100的数据，也就是key最多的前n个数据。
 // 具体取出多少个数据量最多的key，由大家自己决定，我们这里就取1个作为示范。
-//        JavaPairRDD<String, Long> mappedSampledRDD = sampledRDD.mapToPair(
-//                new PairFunction<Tuple2<String, Long>, String, Long>() {
-//                    private static final long serialVersionUID = 1L;
-//
-//                    @Override
-//                    public Tuple2<String, Long> call(Tuple2<String, Long> tuple)
-//                            throws Exception {
-//                        return new Tuple2<String, Long>(tuple._1, 1L);
-//                    }
-//                });
-
         JavaPairRDD<String, Long> countedSampledRDD = sampledRDD.reduceByKey(
                 new Function2<Long, Long, Long>() {
                     private static final long serialVersionUID = 1L;
@@ -215,7 +210,7 @@ public class SparkJavaTest {
                 System.out.println(tuple);
             }
         });
-        //
+        //去除前缀
         JavaPairRDD<String, Tuple2<Long, Long>> joinedRDD1 = join
                 .mapToPair(
                         new PairFunction<Tuple2<String, Tuple2<Long, Long>>, String, Tuple2<Long, Long>>() {
