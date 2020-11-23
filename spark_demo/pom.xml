@@ -24,6 +24,18 @@
     </properties>
 
     <dependencies>
+<!--        lgbm-->
+        <dependency>
+            <groupId>com.microsoft.ml.spark</groupId>
+            <artifactId>mmlspark_2.11</artifactId>
+            <version>0.18.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.ml.lightgbm</groupId>
+            <artifactId>lightgbmlib</artifactId>
+            <version>2.2.350</version>
+        </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
