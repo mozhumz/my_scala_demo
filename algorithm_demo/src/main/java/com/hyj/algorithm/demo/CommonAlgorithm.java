@@ -452,20 +452,41 @@ public class CommonAlgorithm {
         return max;
     }
 
+    /**
+     * 最大连续子数组
+     * 动态规划解析：
+     * 状态定义： 设动态规划列表 dp，dp[i] 代表以元素 nums[i]为结尾的连续子数组最大和。
+     * 当 dp[i - 1] > 0 时：执行 dp[i] = dp[i-1] + nums[i]
+     * 当 dp[i - 1] ≤0 时：执行 dp[i] = nums[i]
+     * 初始状态： dp[0] = nums[0]，即以 nums[0]结尾的连续子数组最大和为 nums[0] 。
+     *
+     * 返回值： 返回 dpdp 列表中的最大值，代表全局最大值
+     *
+     * @param nums
+     * @return
+     */
     public int getMaxcontinousSum(int[] nums) {
         int max = nums[0];
-        int temp = nums[0];
-        int[] subs = new int[nums.length];
-        for (int i = 1; i < nums.length; i++) {
+        //
+        int temp = 0;
+        //截止到下标i的最大和子数组
+        List tempList=new ArrayList();
+        //最大和子数组
+        List maxList=new ArrayList();
+        for (int i = 0; i < nums.length; i++) {
             if (temp < 0) {
                 temp = nums[i];
+                tempList.clear();
             } else {
                 temp += nums[i];
             }
+            tempList.add(nums[i]);
             if (temp > max) {
                 max = temp;
+                maxList=tempList;
             }
         }
+        System.out.println(maxList);
 
         return max;
     }
