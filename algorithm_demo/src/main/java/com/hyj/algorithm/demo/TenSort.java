@@ -24,6 +24,7 @@ public class TenSort {
 
     /**
      * 生成随机数组
+     *
      * @return
      */
     private int[] getIntsArr() {
@@ -50,13 +51,14 @@ public class TenSort {
     }
 
     /**
+     * 2 选择排序
      * 首先在未排序序列中找到最小（大）元素，存放到排序序列的起始位置
      * 再从剩余未排序元素中继续寻找最小（大）元素，然后放到已排序序列的末尾。
      * 重复第二步，直到所有元素均排序完毕
      */
     @Test
     public void testChooseSort() {
-        int[]arr=getIntsArr();
+        int[] arr = getIntsArr();
         CommonUtil.printIntArray(arr);
         CommonUtil.printIntArray(chooseSort(arr));
     }
@@ -67,15 +69,43 @@ public class TenSort {
             for (int j = i; j < arr.length; j++) {
                 //找出未排序的序列中的最小（大）值 记录其位置
                 if (arr[j] < arr[pos]) {
-                    pos=j;
+                    pos = j;
                 }
             }
 
             //如果位置不同则交换
-            if(i!=pos){
-                int itmp=arr[i];
-                arr[i]=arr[pos];
-                arr[pos]=itmp;
+            if (i != pos) {
+                int itmp = arr[i];
+                arr[i] = arr[pos];
+                arr[pos] = itmp;
+            }
+        }
+
+        return arr;
+    }
+
+    /**
+     * 3 插入排序
+     * 首先把待排序列第一个元素看作有序，其余元素依次和已排序列比较，
+     * 将元素插入到已排序列合适的位置（依次和相邻元素比较，较小（大）则交换位置）
+     */
+    @Test
+    public void testInsertSort() {
+        int[] arr = getIntsArr();
+        CommonUtil.printIntArray(arr);
+        CommonUtil.printIntArray(insertSort(arr));
+    }
+
+    public int[] insertSort(int[] arr) {
+        //i=1 表示未排序列的第一个元素
+        for (int i = 1; i < arr.length; i++) {
+            for(int j=i;j-1>=0;j--){
+                if(arr[j]<arr[j-1]){
+                    int tmp=arr[j];
+                    arr[j]=arr[j-1];
+                    arr[j-1]=tmp;
+                }
+
             }
         }
 
