@@ -28,7 +28,7 @@ public class TenSort {
      * @return
      */
     private int[] getIntsArr() {
-        int l = 10;
+        int l = 40;
         int[] arr = new int[l];
         for (int i = 0; i < l; i++) {
             arr[i] = new Random().nextInt(100);
@@ -99,11 +99,11 @@ public class TenSort {
     public int[] insertSort(int[] arr) {
         //i=1 表示未排序列的第一个元素
         for (int i = 1; i < arr.length; i++) {
-            for(int j=i;j-1>=0;j--){
-                if(arr[j]<arr[j-1]){
-                    int tmp=arr[j];
-                    arr[j]=arr[j-1];
-                    arr[j-1]=tmp;
+            for (int j = i; j - 1 >= 0; j--) {
+                if (arr[j] < arr[j - 1]) {
+                    int tmp = arr[j];
+                    arr[j] = arr[j - 1];
+                    arr[j - 1] = tmp;
                 }
 
             }
@@ -112,5 +112,40 @@ public class TenSort {
         return arr;
     }
 
+    /**
+     * 希尔排序
+     * 先将整个待排序的记录序列分割成为若干子序列分别进行直接插入排序，具体算法描述：
+     * 选择增量gap=length/2，缩小增量继续以gap = gap/2的方式，这种增量选择我们可以用一个序列来表示，{n/2,(n/2)/2...1}，称为增量序列
+     * 选择一个增量序列t1，t2，…，tk，其中ti>tj，tk=1；
+     * 按增量序列个数k，对序列进行k 趟排序；
+     * 每趟排序，根据对应的增量ti，将待排序列分割成若干长度为m 的子序列，分别对各子表进行直接插入排序。
+     * 仅增量因子为1 时，整个序列作为一个表来处理，表长度即为整个序列的长度
+     */
+    @Test
+    public void testShellSort() {
+        int[] arr = getIntsArr();
+        CommonUtil.printIntArray(arr);
+        CommonUtil.printIntArray(shellSort(arr));
+    }
+
+    public int[] shellSort(int[] arr) {
+        //增量因子
+        int fact = 2;
+        int gap = arr.length / fact;
+        while (gap != 0) {
+            for (int i = gap; i < arr.length; i++) {
+                for (int j = i; j >= gap; j -= gap) {
+                    if (arr[j] < arr[j - gap]) {
+                        int tmp = arr[j];
+                        arr[j] = arr[j - gap];
+                        arr[j - gap] = tmp;
+                    }
+                }
+            }
+            gap /= fact;
+        }
+
+        return arr;
+    }
 
 }
