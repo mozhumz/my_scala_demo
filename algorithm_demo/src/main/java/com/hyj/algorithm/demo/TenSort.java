@@ -148,4 +148,26 @@ public class TenSort {
         return arr;
     }
 
+    /**
+     * 5 归并排序
+     *
+     * 1.如果给的数组只有一个元素的话，直接返回（也就是递归到最底层的一个情况）
+     *
+     * 2.把整个数组分为尽可能相等的两个部分（分）,直到只剩一个元素，执行步骤1
+     *
+     * 3.从最底层开始，依次向上层递归，对于每一层而言，对同属于上一层某部分的有序序列进行合并
+     *
+     *
+     */
+    @Test
+    public void TestMergeSort(){
+
+    }
+
+    public int[] mergeSort(int[]arr){
+
+
+        return arr;
+    }
+
 }
