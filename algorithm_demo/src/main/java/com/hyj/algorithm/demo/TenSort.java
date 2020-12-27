@@ -28,7 +28,7 @@ public class TenSort {
      * @return
      */
     private int[] getIntsArr() {
-        int l = 40;
+        int l = 20;
         int[] arr = new int[l];
         for (int i = 0; i < l; i++) {
             arr[i] = new Random().nextInt(100);
@@ -113,7 +113,7 @@ public class TenSort {
     }
 
     /**
-     * 希尔排序
+     * 4 希尔排序
      * 先将整个待排序的记录序列分割成为若干子序列分别进行直接插入排序，具体算法描述：
      * 选择增量gap=length/2，缩小增量继续以gap = gap/2的方式，这种增量选择我们可以用一个序列来表示，{n/2,(n/2)/2...1}，称为增量序列
      * 选择一个增量序列t1，t2，…，tk，其中ti>tj，tk=1；
@@ -150,24 +150,183 @@ public class TenSort {
 
     /**
      * 5 归并排序
-     *
+     * <p>
      * 1.如果给的数组只有一个元素的话，直接返回（也就是递归到最底层的一个情况）
-     *
+     * <p>
      * 2.把整个数组分为尽可能相等的两个部分（分）,直到只剩一个元素，执行步骤1
-     *
+     * <p>
      * 3.从最底层开始，依次向上层递归，对于每一层而言，对同属于上一层某部分的有序序列进行合并
-     *
-     *
      */
     @Test
-    public void TestMergeSort(){
+    public void TestMergeSort() {
+        int[] arr = getIntsArr();
+        CommonUtil.printIntArray(arr);
+        mergeSort(arr, 0, arr.length);
+        CommonUtil.printIntArray(arr);
 
     }
 
-    public int[] mergeSort(int[]arr){
+    /**
+     * 归并排序-递归拆分序列
+     *
+     * @param arr
+     * @param left
+     * @param right
+     */
+    public void mergeSort(int[] arr, int left, int right) {
+        if (right - left > 1) {
+            int mid = (left + right) / 2;
+            //拆分左序列
+            mergeSort(arr, left, mid);
+            //拆分右序列
+            mergeSort(arr, mid, right);
+            //针对有序序列进行合并排序
+            mergeSort(left, mid, right, arr);
+        }
 
 
-        return arr;
     }
 
+    /**
+     * 对2个有序序列归并排序
+     * 注意：每个序列只包含左边界 [left,mid) [mid,right)
+     *
+     * @param left  第一个序列起始下标
+     * @param mid   第二个序列起始下标
+     * @param right
+     * @param arr
+     */
+    public void mergeSort(int left, int mid, int right, int[] arr) {
+        int[] tmp = new int[right - left];
+        //指向第一个序列的左边界
+        int i = left;
+        //指向第二个序列的左边界
+        int j = mid;
+        //指向tmp下标
+        int k = 0;
+
+        while (i < mid && j < right) {
+            if (arr[i] <= arr[j]) {
+                tmp[k++] = arr[i++];
+            } else {
+                tmp[k++] = arr[j++];
+            }
+        }
+        //如果某个序列已经取完，还剩下另外一个序列，则将另外一个序列元素追加到tmp数组末尾
+        //如果还剩左序列
+        while (i < mid) {
+            tmp[k++] = arr[i++];
+        }
+        while (j < right) {
+            tmp[k++] = arr[j++];
+        }
+        //将tmp数组复制到arr对应下标
+        for (int m = 0; m < tmp.length; m++) {
+            arr[left + m] = tmp[m];
+        }
+    }
+
+    /**
+     * 归并排序-网络方法
+     *
+     * @param a
+     * @param low
+     * @param high
+     * @return
+     */
+    public static int[] sort(int[] a, int low, int high) {
+        int mid = (low + high) / 2;
+        if (low < high) {
+            sort(a, low, mid);
+            sort(a, mid + 1, high);
+            //左右归并
+            merge(a, low, mid, high);
+        }
+        return a;
+    }
+
+    public static void merge(int[] a, int low, int mid, int high) {
+        int[] temp = new int[high - low + 1];
+        int i = low;
+        int j = mid + 1;
+        int k = 0;
+        // 把较小的数先移到新数组中
+        while (i <= mid && j <= high) {
+            if (a[i] < a[j]) {
+                temp[k++] = a[i++];
+            } else {
+                temp[k++] = a[j++];
+            }
+        }
+        // 把左边剩余的数移入数组
+        while (i <= mid) {
+            temp[k++] = a[i++];
+        }
+        // 把右边边剩余的数移入数组
+        while (j <= high) {
+            temp[k++] = a[j++];
+        }
+        // 把新数组中的数覆盖nums数组
+        for (int x = 0; x < temp.length; x++) {
+            a[x + low] = temp[x];
+        }
+    }
+
+    /**
+     * 6 快速排序
+     * 从数列中挑出一个元素，称为“基准”（pivot）
+     *
+     * 分区（partition）: 遍历数列，比基准小的元素放左边，比它大的放右边。
+     * 于是此次分区结束后，该基准就处于数列的中间位置，其左边的数全比它小（称为小与子序列），右边的数全比他大（称为大于子序列）。
+     * 这样一次排序就造成了整体上的有序化。
+     *
+     * 子数列排序: 将小与子数列和大于子序列分别继续快速排序。
+     * 递归到最底部时，数列的大小是零或一，至此就都排序好了，递归结束。
+     */
+    @Test
+    public void testQuickSort() {
+        int[] arr = getIntsArr();
+        CommonUtil.printIntArray(arr);
+        quickSort(arr, 0, arr.length - 1);
+        CommonUtil.printIntArray(arr);
+    }
+
+//
+    private void swap(int[] arr, int i, int j) {
+        if(i==j){
+            return;
+        }
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+
+    public void quickSort(int[]arr,int l,int r){
+        if(l<r){
+            int p=partition(arr,l,r);
+            //[l,p-1]<arr[p] [p+1,r]>arr[p]
+            quickSort(arr,l,p-1);
+            quickSort(arr,p+1,r);
+        }
+    }
+
+    public int partition(int[]arr,int l,int r){
+        //指定左边界为分割点
+        int v=arr[l];
+        int j=l+1;
+        for(int i=j;i<=r;i++){
+            if(arr[i]<v){
+                swap(arr,i,j++);
+            }
+        }
+        swap(arr,j-1,l);
+
+        return j-1;
+    }
+
+//    public void swap(int i,int j,int arr[]){
+//        arr[i]=arr[i]+arr[j];
+//        arr[j]=arr[i]-arr[j];
+//        arr[i]=arr[i]-arr[j];
+//    }
 }
