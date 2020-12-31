@@ -275,11 +275,11 @@ public class TenSort {
     /**
      * 6 快速排序
      * 从数列中挑出一个元素，称为“基准”（pivot）
-     *
+     * <p>
      * 分区（partition）: 遍历数列，比基准小的元素放左边，比它大的放右边。
      * 于是此次分区结束后，该基准就处于数列的中间位置，其左边的数全比它小（称为小与子序列），右边的数全比他大（称为大于子序列）。
      * 这样一次排序就造成了整体上的有序化。
-     *
+     * <p>
      * 子数列排序: 将小与子数列和大于子序列分别继续快速排序。
      * 递归到最底部时，数列的大小是零或一，至此就都排序好了，递归结束。
      */
@@ -287,13 +287,16 @@ public class TenSort {
     public void testQuickSort() {
         int[] arr = getIntsArr();
         CommonUtil.printIntArray(arr);
+//        swap(0,3,arr);
+//        swap(arr,1,2);
+//        CommonUtil.printIntArray(arr);
         quickSort(arr, 0, arr.length - 1);
         CommonUtil.printIntArray(arr);
     }
 
-//
+    //
     private void swap(int[] arr, int i, int j) {
-        if(i==j){
+        if (i == j) {
             return;
         }
         int temp = arr[i];
@@ -301,32 +304,36 @@ public class TenSort {
         arr[j] = temp;
     }
 
-    public void quickSort(int[]arr,int l,int r){
-        if(l<r){
-            int p=partition(arr,l,r);
+    public void quickSort(int[] arr, int l, int r) {
+        if (l < r) {
+            int p = partition(arr, l, r);
             //[l,p-1]<arr[p] [p+1,r]>arr[p]
-            quickSort(arr,l,p-1);
-            quickSort(arr,p+1,r);
+            quickSort(arr, l, p - 1);
+            quickSort(arr, p + 1, r);
         }
     }
 
-    public int partition(int[]arr,int l,int r){
+    public int partition(int[] arr, int l, int r) {
         //指定左边界为分割点
-        int v=arr[l];
-        int j=l+1;
-        for(int i=j;i<=r;i++){
-            if(arr[i]<v){
+        int v = arr[l];
+        int j = l + 1;
+        for (int i = j; i <= r; i++) {
+            if (arr[i] < v) {
                 swap(arr,i,j++);
+//                swap(i, j++, arr);
             }
         }
-        swap(arr,j-1,l);
+        swap(arr, j - 1, l);
 
-        return j-1;
+        return j - 1;
     }
 
-//    public void swap(int i,int j,int arr[]){
-//        arr[i]=arr[i]+arr[j];
-//        arr[j]=arr[i]-arr[j];
-//        arr[i]=arr[i]-arr[j];
-//    }
+    public void swap(int i, int j, int arr[]) {
+        if (i == j) {
+            return;
+        }
+        arr[i] = arr[i] + arr[j];
+        arr[j] = arr[i] - arr[j];
+        arr[i] = arr[i] - arr[j];
+    }
 }
