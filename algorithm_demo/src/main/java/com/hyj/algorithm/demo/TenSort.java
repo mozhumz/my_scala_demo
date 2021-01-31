@@ -28,7 +28,7 @@ public class TenSort {
      * @return
      */
     private int[] getIntsArr() {
-        int l = 20;
+        int l = 10;
         int[] arr = new int[l];
         for (int i = 0; i < l; i++) {
             arr[i] = new Random().nextInt(100);
@@ -99,6 +99,7 @@ public class TenSort {
     public int[] insertSort(int[] arr) {
         //i=1 表示未排序列的第一个元素
         for (int i = 1; i < arr.length; i++) {
+            //未排序元素依次和已排序元素比较
             for (int j = i; j - 1 >= 0; j--) {
                 if (arr[j] < arr[j - 1]) {
                     int tmp = arr[j];
@@ -285,7 +286,7 @@ public class TenSort {
      */
     @Test
     public void testQuickSort() {
-        int[] arr = getIntsArr();
+        int[] arr ={9,7,8,1,3,5};
         CommonUtil.printIntArray(arr);
 //        swap(0,3,arr);
 //        swap(arr,1,2);
@@ -320,7 +321,8 @@ public class TenSort {
         int j = l + 1;
         for (int i = j; i <= r; i++) {
             if (arr[i] < v) {
-                swap(arr,i,j++);
+                swap(arr, i, j++);
+                CommonUtil.printIntArray(arr);
 //                swap(i, j++, arr);
             }
         }
@@ -337,4 +339,69 @@ public class TenSort {
         arr[j] = arr[i] - arr[j];
         arr[i] = arr[i] - arr[j];
     }
+
+    /**
+     * 7 堆排序
+     */
+    @Test
+    public void testHeapSort() {
+
+    }
+
+    /**
+     * 8 计数排序
+     * 找到数组中的最大值和最小值 max min
+     * 生成max-min+1长度的数组，下标0表示min，数组最后一个下标表示max，
+     * 元素的值val和新数组下标index的关系为 val - min = index，
+     * 再次遍历原数组，按照此关系将元素存入新数组，如果新数组index有值(>0)，则所在index自增1，否则为1
+     * 遍历新数组，其中下标index+1就是元素的值，下标所在的值为元素出现的次数
+     */
+    @Test
+    public void testCountingSort() {
+        int[] arr = getIntsArr();
+        CommonUtil.printIntArray(arr);
+        countingSort(arr);
+        CommonUtil.printIntArray(arr);
+    }
+
+    public int[] countingSort(int[] arr) {
+        int max = arr[0];
+        int min = arr[0];
+        //找到最值
+        for (int i : arr) {
+            if (i > max) {
+                max = i;
+            }
+            if (i < min) {
+                min = i;
+            }
+        }
+        //生成max-min长度的新数组
+        int[] newArr = new int[max - min + 1];
+
+        for (int i : arr) {
+            int index = i - min;
+            int val = newArr[index];
+            if (val == 0) {
+                newArr[index] = 1;
+            } else {
+                newArr[index] += 1;
+            }
+        }
+
+        int k = 0;
+        for (int j = 0; j < newArr.length; j++) {
+            int count = newArr[j];
+            if (count == 0) {
+                continue;
+            }
+            for (int i = 1; i <= count; i++) {
+                arr[k++] = j + min;
+            }
+        }
+
+        return arr;
+    }
+
+
 }
