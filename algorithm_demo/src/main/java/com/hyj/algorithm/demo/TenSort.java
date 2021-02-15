@@ -174,7 +174,7 @@ public class TenSort {
      * @param left
      * @param right
      */
-    public void mergeSort(int[] arr, int left, int right) {
+    public static void mergeSort(int[] arr, int left, int right) {
         if (right - left > 1) {
             int mid = (left + right) / 2;
             //拆分左序列
@@ -197,7 +197,7 @@ public class TenSort {
      * @param right
      * @param arr
      */
-    public void mergeSort(int left, int mid, int right, int[] arr) {
+    public static void mergeSort(int left, int mid, int right, int[] arr) {
         int[] tmp = new int[right - left];
         //指向第一个序列的左边界
         int i = left;
