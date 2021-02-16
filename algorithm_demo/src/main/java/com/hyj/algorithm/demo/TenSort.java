@@ -320,12 +320,14 @@ public class TenSort {
         //j记录>=v的元素下标起始位置
         int j = l + 1;
         for (int i = j; i <= r; i++) {
+            //将小于v的元素交换到前面，如数组：10 9 8 7 11 12 6 5 交换后为10 9 8 7 6 5 11 12 arr[j]=11
             if (arr[i] < v) {
                 swap(arr, i, j++);
-                CommonUtil.printIntArray(arr);
+//                CommonUtil.printIntArray(arr);
 //                swap(i, j++, arr);
             }
         }
+        //j-1表示小于v的元素下标：arr[j-1]=5,arr[l]=10, 10 9 8 7 6 5 11 12 -> 5 9 8 7 6 10 11 12
         swap(arr, j - 1, l);
 
         return j - 1;

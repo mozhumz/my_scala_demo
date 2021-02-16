@@ -5,6 +5,9 @@ import org.junit.Test;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * 各种集合排序
+ */
 public class CollectionSort {
     /**
      * map之entry排序
