@@ -30,7 +30,7 @@ public class ArrayCase {
     @Test
     public void testBinarySearch() {
         int len = 10;
-        int[] arr = {1,3};
+        int[] arr = {1, 3};
 //        for (int i = 0; i < len; i++) {
 //            arr[i] = i;
 //        }
@@ -73,11 +73,11 @@ public class ArrayCase {
             } else if (target > arr[end]) {
                 return end + 1;
             } else {
-                if(end==0){
+                if (end == 0) {
                     return 0;
                 }
                 //针对情况：[1,3] 2
-                if(target>arr[end-1]){
+                if (target > arr[end - 1]) {
                     return end;
                 }
                 return end - 1;
@@ -179,8 +179,8 @@ public class ArrayCase {
      */
     @Test
     public void testMinlenOfContinousArr() {
-        int[]arr={2,3,1,2,4,3};
-        System.out.println(minlenOfContinousArr(arr,7));
+        int[] arr = {2, 3, 1, 2, 4, 3};
+        System.out.println(minlenOfContinousArr(arr, 7));
     }
 
     public int minlenOfContinousArr(int[] arr, int s) {
@@ -192,20 +192,105 @@ public class ArrayCase {
         int tmpsum = 0;
         //临时子数组的长度
         int tmplen = 0;
-        int j=0;
+        int j = 0;
         for (int i = 0; i < arr.length; i++) {
             tmpsum += arr[i];
             while (tmpsum >= s) {
-                tmplen=i-j+1;
-                if(minlen==0||tmplen<minlen){
-                    minlen=tmplen;
+                tmplen = i - j + 1;
+                if (minlen == 0 || tmplen < minlen) {
+                    minlen = tmplen;
 //                    sum=tmpsum;
                 }
-                tmpsum-=arr[j++];
+                tmpsum -= arr[j++];
             }
         }
 //        System.out.println("sum:"+sum);
         return minlen;
+    }
+
+    /**
+     * 题目59.螺旋矩阵II
+     * 给定一个正整数 n，生成一个包含 1 到 n2 所有元素，且元素按顺时针顺序螺旋排列的正方形矩阵。
+     * <p>
+     * 示例:
+     * <p>
+     * 输入: 3 输出:
+     * [
+     * [ 1, 2, 3 ],
+     * [ 8, 9, 4 ],
+     * [ 7, 6, 5 ]
+     * ]
+     * <p>
+     * 分析：每次，分4个方向填充二维数组，每个方向最后一个数的值设置为m，停止条件为m=n^2
+     * 1 2 3 ... n
+     * k=4n-4...  k+n-2 n+1
+     * 3n        n+2
+     * 3n-1      2n-2
+     * 3n-2	   2n 2n-1
+     */
+    @Test
+    public void testScrewArr() {
+        int[][]arr=screwArr(5);
+        for(int i=0;i<arr.length;i++){
+            CommonUtil.printIntArray(arr[i]);
+        }
+    }
+
+    /**
+     * @param n
+     * @return
+     */
+    public int[][] screwArr(int n) {
+        int[][] arr = new int[n][n];
+        if (n == 1) {
+            arr[0][0] = 1;
+            return arr;
+        }
+        //x表示行坐标 y表示列坐标
+        int x , y;
+        //每次循环的起始坐标
+        int x0 = 0, y0 = 0;
+
+        //计数
+        int count = 1;
+        //控制每边的长度
+        int offset = 1;
+        for (int loop = 0; loop < n / 2; loop++) {
+            //loop表示轮数
+            //更新起始位置
+            x=x0;
+            y=y0;
+            //右
+            for (; y < y0 + n - offset; y++) {
+                arr[x][y] = count++;
+            }
+            //下
+            for (; x < x0 + n - offset; x++) {
+                arr[x][y] = count++;
+            }
+            //左
+            for (; y > y0; y--) {
+                arr[x][y] = count++;
+            }
+            //上
+            for (; x > x0; x--) {
+                arr[x][y] = count++;
+            }
+            //每一圈后更新起始位置
+            x0++;
+            y0++;
+            //每一圈后 每边长度比上次少2
+            offset += 2;
+
+        }
+        //n为奇数时 最中间的坐标
+        int mid = n / 2;
+        if (n % 2 == 1) {
+            arr[mid][mid] = n * n;
+        }
+
+
+        return arr;
     }
 
 }
