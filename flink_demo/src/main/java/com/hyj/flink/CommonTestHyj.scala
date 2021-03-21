@@ -4,10 +4,11 @@ import org.apache.flink.streaming.api.scala.{DataStream, StreamExecutionEnvironm
 import org.apache.flink.api.scala._
 object CommonTestHyj {
   def main(args: Array[String]): Unit = {
-    batchWordCount
+//    batchWordCount
 
     //    env.execute("fromCollection job Test")
 //    streamWordCount
+    testSplit
   }
 
   private def batchWordCount: Unit = {
@@ -23,5 +24,11 @@ object CommonTestHyj {
 
     ds.map((_, 1)).filter(_._1 > 1).keyBy(0).sum(1).print()
     env.execute("streamWordCount test")
+  }
+
+  private def testSplit:Unit={
+    val str="1 2 dd ee"
+    //scala数组下标从0开始  tuple从1开始
+    println(str.split(" ")(0))
   }
 }
