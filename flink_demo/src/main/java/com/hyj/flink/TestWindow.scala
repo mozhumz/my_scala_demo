@@ -36,9 +36,9 @@ import org.apache.flink.streaming.api.windowing.time.Time
   * 第一次输入23-28s的流数据，窗口不会关闭，输入29s的数据时窗口关闭，此时watermark为29s-bound=24s,表示小于24s的数据要被处理:23
   * 输入30-31s的数据，窗口不会关闭，输入32s的数据时窗口关闭，此时watermark为32-bound=27s，表示小于27s的数据被处理：24-26
   * 总结：假设延时为bound，窗口大小为windowSize，第一条数据时间戳为t1,当前水位线now_watermark，上一次聚合的水位线pre_watermark
-  * 则第一次执行聚合的条件为：t1 < now_watermark，第一次的窗口范围为[now_watermark-bound,now_watermark)
-  * 后续执行聚合的条件为: 窗口中有数据的时间戳 < now_watermark && now_watermark - pre_watermark >= bound
-  * 窗口范围为[now_watermark-bound,now_watermark)
+  * 则第一次执行聚合的条件为：t1 < now_watermark，第一次的窗口范围为[now_watermark-windowSize,now_watermark) [21,24)
+  * 后续执行聚合的条件为: 窗口中有数据的时间戳 < now_watermark && now_watermark - pre_watermark >= windowSize [24,27)
+  * 窗口范围为[now_watermark-windowSize,now_watermark)
   */
 object TestWindow {
   def main(args: Array[String]): Unit = {

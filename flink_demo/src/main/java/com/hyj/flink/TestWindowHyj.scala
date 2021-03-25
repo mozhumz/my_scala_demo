@@ -69,7 +69,10 @@ object TestWindowHyj {
       .map(x=>(x.split(" ")(1),1L)).keyBy(0)
 
     val reduceData = data
-      .timeWindow(Time.seconds(3))
+      //滚动窗口
+//      .timeWindow(Time.seconds(3))
+      //滑动窗口
+      .timeWindow(Time.seconds(5),Time.seconds(3))
       //2条流数据做聚合 d1表示之前聚合的数据 d2表示新来的数据
       .reduce((d1, d2) => (d1._1, d1._2 + d2._2)).print("reduce data")
 
