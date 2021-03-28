@@ -28,50 +28,52 @@ object MyReceiverTestHyj {
     ssc.start()
     ssc.awaitTermination()
   }
-}
 
-/**
-  * 自定义接收器
-  * @param host
-  * @param port
-  */
-class MyReceiver(host:String,port:Int) extends Receiver[String](StorageLevel.MEMORY_AND_DISK_SER_2){
-  private var socket: Socket = _
-
+  /**
+   * 自定义接收器
+   * @param host
+   * @param port
+   */
+  class MyReceiver(host:String,port:Int) extends Receiver[String](StorageLevel.MEMORY_AND_DISK_SER_2){
+    private var socket: Socket = _
 
 
-  override def onStart(): Unit = {
-    try {
-      socket = new Socket(host, port)
-    } catch {
-      case e: ConnectException =>
-        restart(s"Error connecting to $host:$port", e)
-        return
-    }
 
-    // Start the thread that receives data over a connection
-    val task=
-    new Thread("Socket Receiver") {
-      setDaemon(true)
-      override def run() { receive() }
-    }
-
-  }
-
-  override def onStop(): Unit = {
-    if(socket!=null){
-      socket.close()
-    }
-  }
-
-  def receive() {
-    val reader = new BufferedReader(new InputStreamReader(socket.getInputStream))
-    var line:String=null
-    while ((line=reader.readLine())!=null){
-      if("end".eq(line)){
-        return
+    override def onStart(): Unit = {
+      try {
+        socket = new Socket(host, port)
+      } catch {
+        case e: ConnectException =>
+          restart(s"Error connecting to $host:$port", e)
+          return
       }
-      this.store(line)
+
+      // Start the thread that receives data over a connection
+      val task=
+        new Thread("Socket Receiver") {
+          setDaemon(true)
+          override def run() { receive() }
+        }
+
+    }
+
+    override def onStop(): Unit = {
+      if(socket!=null){
+        socket.close()
+      }
+    }
+
+    def receive() {
+      val reader = new BufferedReader(new InputStreamReader(socket.getInputStream))
+      var line:String=null
+      while ((line=reader.readLine())!=null){
+        if("end".eq(line)){
+          return
+        }
+        this.store(line)
+      }
     }
   }
 }
+
+

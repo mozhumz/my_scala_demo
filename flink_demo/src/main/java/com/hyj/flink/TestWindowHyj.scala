@@ -7,11 +7,12 @@ import org.apache.flink.streaming.api.scala.StreamExecutionEnvironment
 import org.apache.flink.streaming.api.watermark.Watermark
 import org.apache.flink.streaming.api.windowing.time.Time
 import org.apache.flink.streaming.api.scala._
+import org.apache.flink.streaming.api.windowing.assigners.SlidingProcessingTimeWindows
 object TestWindowHyj {
   def main(args: Array[String]): Unit = {
     val env = StreamExecutionEnvironment.getExecutionEnvironment
     env.setParallelism(1)
-    val stream = env.socketTextStream("192.168.147.10", 8899)
+    val stream = env.socketTextStream("192.168.147.10", 8890)
 
 //    val (data, reduceData) = testByProcessTime(stream)
     testByEventTime(stream,env)
@@ -72,7 +73,9 @@ object TestWindowHyj {
       //滚动窗口
 //      .timeWindow(Time.seconds(3))
       //滑动窗口
-      .timeWindow(Time.seconds(5),Time.seconds(3))
+//      .timeWindow(Time.seconds(5),Time.seconds(3))
+      //滑动窗口2 Time.hours(8)表示偏移量
+//      .window(SlidingProcessingTimeWindows.of(Time.seconds(5),Time.seconds(3),Time.hours(8)))
       //2条流数据做聚合 d1表示之前聚合的数据 d2表示新来的数据
       .reduce((d1, d2) => (d1._1, d1._2 + d2._2)).print("reduce data")
 
