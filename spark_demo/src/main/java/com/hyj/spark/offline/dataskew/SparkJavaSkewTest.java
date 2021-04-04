@@ -1,4 +1,4 @@
-package com.hyj.spark.offline;
+package com.hyj.spark.offline.dataskew;
 
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
@@ -16,26 +16,26 @@ import java.util.*;
 /**
  * 数据倾斜解决
  */
-public class SparkJavaTest {
+public class SparkJavaSkewTest {
     public static void main(String[] args) {
 
         SparkConf conf = new SparkConf().setMaster("local").setAppName("SparkFlatMapJava")
-                .set("spark.sql.shuffle.partitions","300");
+                .set("spark.sql.shuffle.partitions", "300");
 //        SparkContext sc = session.sparkContext();
 
         JavaSparkContext sc = new JavaSparkContext(conf);
         JavaPairRDD<String, Long> rdd = sc.textFile("file:///G:\\idea_workspace\\my_scala_demo\\input\\word.txt")
                 .flatMap(new FlatMapFunction<String, String>() {
-            @Override
-            public Iterator<String> call(String s) throws Exception {
-                return Arrays.asList(s.split(" ")).iterator();
-            }
-        }).mapToPair(new PairFunction<String, String, Long>() {
-            @Override
-            public Tuple2<String, Long> call(String s) throws Exception {
-                return new Tuple2<String, Long>(s, 1L);
-            }
-        });
+                    @Override
+                    public Iterator<String> call(String s) throws Exception {
+                        return Arrays.asList(s.split(" ")).iterator();
+                    }
+                }).mapToPair(new PairFunction<String, String, Long>() {
+                    @Override
+                    public Tuple2<String, Long> call(String s) throws Exception {
+                        return new Tuple2<String, Long>(s, 1L);
+                    }
+                });
         JavaPairRDD<String, Long> rdd2 = sc.textFile("file:///G:\\idea_workspace\\my_scala_demo\\input\\word2.txt")
                 .flatMap(new FlatMapFunction<String, String>() {
                     @Override
@@ -49,25 +49,82 @@ public class SparkJavaTest {
                     }
                 });
 //        combineWithTwoSteps(rdd);
-        sampleKey(rdd,rdd2);
+        sampleKey(rdd, rdd2);
 
     }
 
     /**
+     * 1 两阶段聚合（局部聚合+全局聚合）
+     *
+     * @param rdd
+     */
+    private static void combineWithTwoSteps(JavaPairRDD<String, Long> rdd) {
+        // 第一步，给RDD中的每个key都打上一个随机前缀。
+        JavaPairRDD<String, Long> randomPrefixRdd = rdd.mapToPair(
+                new PairFunction<Tuple2<String, Long>, String, Long>() {
+                    @Override
+                    public Tuple2<String, Long> call(Tuple2<String, Long> tuple) throws Exception {
+                        Random random = new Random();
+                        int prefix = random.nextInt(10);
+                        return new Tuple2<String, Long>(prefix + "_" + tuple._1, tuple._2);
+                    }
+                }
+
+        );
+
+// 第二步，对打上随机前缀的key进行局部聚合。
+        JavaPairRDD<String, Long> localAggrRdd = randomPrefixRdd.reduceByKey(
+                new Function2<Long, Long, Long>() {
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public Long call(Long v1, Long v2) throws Exception {
+                        return v1 + v2;
+                    }
+                });
+
+// 第三步，去除RDD中每个key的随机前缀。
+        JavaPairRDD<Long, Long> removedRandomPrefixRdd = localAggrRdd.mapToPair(
+                new PairFunction<Tuple2<String, Long>, Long, Long>() {
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public Tuple2<Long, Long> call(Tuple2<String, Long> tuple)
+                            throws Exception {
+                        long originalKey = Long.valueOf(tuple._1.split("_")[1]);
+                        return new Tuple2<Long, Long>(originalKey, tuple._2);
+                    }
+                });
+
+// 第四步，对去除了随机前缀的RDD进行全局聚合。
+        JavaPairRDD<Long, Long> globalAggrRdd = removedRandomPrefixRdd.reduceByKey(
+                new Function2<Long, Long, Long>() {
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public Long call(Long v1, Long v2) throws Exception {
+                        return v1 + v2;
+                    }
+                });
+    }
+
+    /**
      * 使用随机前缀和扩容RDD进行join
+     *
      * @param rdd1
      * @param rdd2
      */
-    private static void randomKeyAndExtend(JavaPairRDD<String, Long> rdd1, JavaPairRDD<String, Long> rdd2){
+    private static void randomKeyAndExtend(JavaPairRDD<String, Long> rdd1, JavaPairRDD<String, Long> rdd2) {
         // 首先将其中一个key分布相对较为均匀的RDD膨胀100倍。
         JavaPairRDD<String, Long> expandedRDD = rdd1.flatMapToPair(
-                new PairFlatMapFunction<Tuple2<String,Long>, String, Long>() {
+                new PairFlatMapFunction<Tuple2<String, Long>, String, Long>() {
                     private static final long serialVersionUID = 1L;
+
                     @Override
                     public Iterator<Tuple2<String, Long>> call(Tuple2<String, Long> tuple)
                             throws Exception {
                         List<Tuple2<String, Long>> list = new ArrayList<Tuple2<String, Long>>();
-                        for(int i = 0; i < 100; i++) {
+                        for (int i = 0; i < 100; i++) {
                             list.add(new Tuple2<String, Long>(0 + "_" + tuple._1, tuple._2));
                         }
                         return list.iterator();
@@ -76,8 +133,9 @@ public class SparkJavaTest {
 
 // 其次，将另一个有数据倾斜key的RDD，每条数据都打上100以内的随机前缀。
         JavaPairRDD<String, Long> mappedRDD = rdd2.mapToPair(
-                new PairFunction<Tuple2<String,Long>, String, Long>() {
+                new PairFunction<Tuple2<String, Long>, String, Long>() {
                     private static final long serialVersionUID = 1L;
+
                     @Override
                     public Tuple2<String, Long> call(Tuple2<String, Long> tuple)
                             throws Exception {
@@ -114,7 +172,7 @@ public class SparkJavaTest {
                 System.out.println(stringLongTuple2);
             }
         });
-        JavaPairRDD<String, Long> sampledRDD=rdd1;
+        JavaPairRDD<String, Long> sampledRDD = rdd1;
 
 // 对样本数据RDD统计出每个key的出现次数，并按出现次数降序排序。
 // 对降序排序后的数据，取出top 1或者top 100的数据，也就是key最多的前n个数据。
@@ -301,58 +359,5 @@ public class SparkJavaTest {
 // rdd2中每条数据都可能会返回多条join后的数据。
     }
 
-    /**
-     * 两阶段聚合（局部聚合+全局聚合）
-     *
-     * @param rdd
-     */
-    private static void combineWithTwoSteps(JavaPairRDD<String, Long> rdd) {
-        // 第一步，给RDD中的每个key都打上一个随机前缀。
-        JavaPairRDD<String, Long> randomPrefixRdd = rdd.mapToPair(
-                new PairFunction<Tuple2<String, Long>, String, Long>() {
-                    @Override
-                    public Tuple2<String, Long> call(Tuple2<String, Long> tuple) throws Exception {
-                        Random random = new Random();
-                        int prefix = random.nextInt(10);
-                        return new Tuple2<String, Long>(prefix + "_" + tuple._1, tuple._2);
-                    }
-                }
 
-        );
-
-// 第二步，对打上随机前缀的key进行局部聚合。
-        JavaPairRDD<String, Long> localAggrRdd = randomPrefixRdd.reduceByKey(
-                new Function2<Long, Long, Long>() {
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    public Long call(Long v1, Long v2) throws Exception {
-                        return v1 + v2;
-                    }
-                });
-
-// 第三步，去除RDD中每个key的随机前缀。
-        JavaPairRDD<Long, Long> removedRandomPrefixRdd = localAggrRdd.mapToPair(
-                new PairFunction<Tuple2<String, Long>, Long, Long>() {
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    public Tuple2<Long, Long> call(Tuple2<String, Long> tuple)
-                            throws Exception {
-                        long originalKey = Long.valueOf(tuple._1.split("_")[1]);
-                        return new Tuple2<Long, Long>(originalKey, tuple._2);
-                    }
-                });
-
-// 第四步，对去除了随机前缀的RDD进行全局聚合。
-        JavaPairRDD<Long, Long> globalAggrRdd = removedRandomPrefixRdd.reduceByKey(
-                new Function2<Long, Long, Long>() {
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    public Long call(Long v1, Long v2) throws Exception {
-                        return v1 + v2;
-                    }
-                });
-    }
 }

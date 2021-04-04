@@ -2,10 +2,11 @@ package com.hyj.spark.util
 
 import com.huaban.analysis.jieba.JiebaSegmenter.SegMode
 import com.huaban.analysis.jieba.{JiebaSegmenter, SegToken}
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.functions.{col, udf}
 
-class Utils {
+object MyUtils {
 
   def jieba_seg(df:DataFrame,colName:String):DataFrame={
     val spark = df.sparkSession
@@ -22,5 +23,13 @@ class Utils {
     }
     df.withColumn("seg",jiebaUdf(col(colName)))
   }
+
+  def printRdd(pre:String,rdd:RDD[_]):Unit={
+    if(pre!=""){
+      println(pre)
+    }
+    rdd.collect().foreach(println)
+  }
+
 
 }
