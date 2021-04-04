@@ -28,6 +28,7 @@ object MyUtils {
     if(pre!=""){
       println(pre)
     }
+    println("partitionNum:"+rdd.getNumPartitions)
     rdd.collect().foreach(println)
   }
 
