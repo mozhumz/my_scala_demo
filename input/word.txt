@@ -4,3 +4,7 @@ hi zhangsan
 you are good
 you are kind
 who are you
+hello world
+hello kitty
+hello world
+hello kitty
