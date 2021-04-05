@@ -157,54 +157,7 @@ public class SparkJavaSkewTest {
     }
 
     /**
-     * 使用随机前缀和扩容RDD进行join
-     *
-     * @param rdd1
-     * @param rdd2
-     */
-    private static void randomKeyAndExtend(JavaPairRDD<String, Long> rdd1, JavaPairRDD<String, Long> rdd2) {
-        // 首先将其中一个key分布相对较为均匀的RDD膨胀100倍。
-        JavaPairRDD<String, Long> expandedRDD = rdd1.flatMapToPair(
-                new PairFlatMapFunction<Tuple2<String, Long>, String, Long>() {
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    public Iterator<Tuple2<String, Long>> call(Tuple2<String, Long> tuple)
-                            throws Exception {
-                        List<Tuple2<String, Long>> list = new ArrayList<Tuple2<String, Long>>();
-                        for (int i = 0; i < 100; i++) {
-                            list.add(new Tuple2<String, Long>(0 + "_" + tuple._1, tuple._2));
-                        }
-                        return list.iterator();
-                    }
-                });
-
-// 其次，将另一个有数据倾斜key的RDD，每条数据都打上100以内的随机前缀。
-        JavaPairRDD<String, Long> mappedRDD = rdd2.mapToPair(
-                new PairFunction<Tuple2<String, Long>, String, Long>() {
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    public Tuple2<String, Long> call(Tuple2<String, Long> tuple)
-                            throws Exception {
-                        Random random = new Random();
-                        int prefix = random.nextInt(100);
-                        return new Tuple2<String, Long>(prefix + "_" + tuple._1, tuple._2);
-                    }
-                });
-
-// 将两个处理后的RDD进行join即可。
-        JavaPairRDD<String, Tuple2<Long, Long>> joinedRDD = mappedRDD.join(expandedRDD);
-        joinedRDD.foreach(new VoidFunction<Tuple2<String, Tuple2<Long, Long>>>() {
-            @Override
-            public void call(Tuple2<String, Tuple2<Long, Long>> stringTuple2Tuple2) throws Exception {
-                System.out.println(stringTuple2Tuple2);
-            }
-        });
-    }
-
-    /**
-     * 通过采样找出rdd1数据倾斜的key 做成skewedRdd1（对key添加随机数）,找到rdd2同样的key 做成skewedRdd2（扩容n倍）
+     * 3 通过采样找出rdd1数据倾斜的key 做成skewedRdd1（对key添加随机数）,找到rdd2同样的key 做成skewedRdd2（扩容n倍）
      * 两个rdd join，rdd1的普通rdd join rdd2
      *
      * @param rdd1
@@ -285,7 +238,7 @@ public class SparkJavaSkewTest {
                     public Iterator<Tuple2<String, Long>> call(
                             Tuple2<String, Long> tuple) throws Exception {
                         List<Tuple2<String, Long>> list = new ArrayList<Tuple2<String, Long>>();
-                        for (int i = 0; i < 100; i++) {
+                        for (int i = 0; i < 10; i++) {
                             list.add(new Tuple2<String, Long>(i + "_" + tuple._1, tuple._2));
                         }
                         return list.iterator();
@@ -303,7 +256,7 @@ public class SparkJavaSkewTest {
                     public Tuple2<String, Long> call(Tuple2<String, Long> tuple)
                             throws Exception {
                         Random random = new Random();
-                        int prefix = random.nextInt(100);
+                        int prefix = random.nextInt(10);
                         return new Tuple2<String, Long>(prefix + "_" + tuple._1, tuple._2);
                     }
                 })
@@ -360,6 +313,55 @@ public class SparkJavaSkewTest {
             }
         });
     }
+
+    /**
+     * 使用随机前缀和扩容RDD进行join
+     *
+     * @param rdd1
+     * @param rdd2
+     */
+    private static void randomKeyAndExtend(JavaPairRDD<String, Long> rdd1, JavaPairRDD<String, Long> rdd2) {
+        // 首先将其中一个key分布相对较为均匀的RDD膨胀100倍。
+        JavaPairRDD<String, Long> expandedRDD = rdd1.flatMapToPair(
+                new PairFlatMapFunction<Tuple2<String, Long>, String, Long>() {
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public Iterator<Tuple2<String, Long>> call(Tuple2<String, Long> tuple)
+                            throws Exception {
+                        List<Tuple2<String, Long>> list = new ArrayList<Tuple2<String, Long>>();
+                        for (int i = 0; i < 100; i++) {
+                            list.add(new Tuple2<String, Long>(0 + "_" + tuple._1, tuple._2));
+                        }
+                        return list.iterator();
+                    }
+                });
+
+// 其次，将另一个有数据倾斜key的RDD，每条数据都打上100以内的随机前缀。
+        JavaPairRDD<String, Long> mappedRDD = rdd2.mapToPair(
+                new PairFunction<Tuple2<String, Long>, String, Long>() {
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public Tuple2<String, Long> call(Tuple2<String, Long> tuple)
+                            throws Exception {
+                        Random random = new Random();
+                        int prefix = random.nextInt(100);
+                        return new Tuple2<String, Long>(prefix + "_" + tuple._1, tuple._2);
+                    }
+                });
+
+// 将两个处理后的RDD进行join即可。
+        JavaPairRDD<String, Tuple2<Long, Long>> joinedRDD = mappedRDD.join(expandedRDD);
+        joinedRDD.foreach(new VoidFunction<Tuple2<String, Tuple2<Long, Long>>>() {
+            @Override
+            public void call(Tuple2<String, Tuple2<Long, Long>> stringTuple2Tuple2) throws Exception {
+                System.out.println(stringTuple2Tuple2);
+            }
+        });
+    }
+
+
 
 
 
