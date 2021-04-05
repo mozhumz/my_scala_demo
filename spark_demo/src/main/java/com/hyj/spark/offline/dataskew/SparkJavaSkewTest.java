@@ -109,6 +109,54 @@ public class SparkJavaSkewTest {
     }
 
     /**
+     * 2 将reduce join转换为mapJoin 数据较小的rdd广播出去
+     *
+     * @param rdd
+     * @param rdd2
+     * @param sc
+     */
+    private static void reducejoinToMapjoin(JavaPairRDD<String, Long> rdd,
+                                            JavaPairRDD<String, Long> rdd2, JavaSparkContext sc) {
+        // 首先将数据量比较小的RDD的数据，collect到Driver中来。
+        List<Tuple2<String, Long>> rdd1Data = rdd.collect();
+        Map<String, Long> rdd1DataMap = new HashMap<String, Long>();
+        for (Tuple2<String, Long> data : rdd1Data) {
+            //如果rdd1有重复key 那么value叠加 rdd1DataMap.put(data._1, data._2+value);
+
+            rdd1DataMap.put(data._1, data._2+rdd1DataMap.getOrDefault(data._1,0L));
+        }
+// 然后使用Spark的广播功能，将小RDD的数据转换成广播变量，这样每个Executor就只有一份RDD的数据。
+// 可以尽可能节省内存空间，并且减少网络传输性能开销。
+        final Broadcast<Map<String, Long> > rdd1DataBroadcast = sc.broadcast(rdd1DataMap);
+
+// 对另外一个RDD执行map类操作，而不再是join类操作。
+        JavaPairRDD<String, Long> joinedRdd = rdd2.mapToPair(
+                new PairFunction<Tuple2<String, Long>, String, Long>() {
+                    private static final long serialVersionUID = 1L;
+
+                    @Override
+                    public Tuple2<String, Long> call(Tuple2<String, Long> tuple)
+                            throws Exception {
+                        // 在算子函数中，通过广播变量，获取到本地Executor中的rdd1数据。
+                        Map<String, Long>  rdd1Data = rdd1DataBroadcast.value();
+                        // 可以将rdd1的数据转换为一个Map，便于后面进行join操作。
+
+                        // 获取当前RDD数据的key以及value。
+                        String key = tuple._1;
+                        Long value = tuple._2;
+                        // 从rdd1数据Map中，根据key获取到可以join到的数据。
+                        Long rdd1Value = rdd1Data.getOrDefault(key,0L);
+                        return new Tuple2<>(key, value + rdd1Value);
+                    }
+                });
+
+// 这里得提示一下。
+// 上面的做法，仅仅适用于rdd1中的key没有重复，全部是唯一的场景。
+// 如果rdd1中有多个相同的key，那么就得用flatMap类的操作，在进行join的时候不能用map，而是得遍历rdd1所有数据进行join。
+// rdd2中每条数据都可能会返回多条join后的数据。
+    }
+
+    /**
      * 使用随机前缀和扩容RDD进行join
      *
      * @param rdd1
@@ -313,51 +361,7 @@ public class SparkJavaSkewTest {
         });
     }
 
-    /**
-     * 将reduce join转换为mapJoin 数据较小的rdd广播出去
-     *
-     * @param rdd
-     * @param rdd2
-     * @param sc
-     */
-    private static void reducejoinToMapjoin(JavaPairRDD<String, Long> rdd,
-                                            JavaPairRDD<String, Long> rdd2, JavaSparkContext sc) {
-        // 首先将数据量比较小的RDD的数据，collect到Driver中来。
-        List<Tuple2<String, Long>> rdd1Data = rdd.collect();
-// 然后使用Spark的广播功能，将小RDD的数据转换成广播变量，这样每个Executor就只有一份RDD的数据。
-// 可以尽可能节省内存空间，并且减少网络传输性能开销。
-        final Broadcast<List<Tuple2<String, Long>>> rdd1DataBroadcast = sc.broadcast(rdd1Data);
 
-// 对另外一个RDD执行map类操作，而不再是join类操作。
-        JavaPairRDD<String, Long> joinedRdd = rdd2.mapToPair(
-                new PairFunction<Tuple2<String, Long>, String, Long>() {
-                    private static final long serialVersionUID = 1L;
-
-                    @Override
-                    public Tuple2<String, Long> call(Tuple2<String, Long> tuple)
-                            throws Exception {
-                        // 在算子函数中，通过广播变量，获取到本地Executor中的rdd1数据。
-                        List<Tuple2<String, Long>> rdd1Data = rdd1DataBroadcast.value();
-                        // 可以将rdd1的数据转换为一个Map，便于后面进行join操作。
-                        Map<String, Long> rdd1DataMap = new HashMap<String, Long>();
-                        for (Tuple2<String, Long> data : rdd1Data) {
-                            //如果rdd1有重复key 那么value叠加 rdd1DataMap.put(data._1, data._2+value);
-                            rdd1DataMap.put(data._1, data._2);
-                        }
-                        // 获取当前RDD数据的key以及value。
-                        String key = tuple._1;
-                        Long value = tuple._2;
-                        // 从rdd1数据Map中，根据key获取到可以join到的数据。
-                        Long rdd1Value = rdd1DataMap.get(key);
-                        return new Tuple2<>(key, value + rdd1Value);
-                    }
-                });
-
-// 这里得提示一下。
-// 上面的做法，仅仅适用于rdd1中的key没有重复，全部是唯一的场景。
-// 如果rdd1中有多个相同的key，那么就得用flatMap类的操作，在进行join的时候不能用map，而是得遍历rdd1所有数据进行join。
-// rdd2中每条数据都可能会返回多条join后的数据。
-    }
 
 
 }

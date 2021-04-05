@@ -17,18 +17,28 @@ object SparkDataSkewTest {
     val conf = new SparkConf().setAppName("dataSkewApp").setMaster("local")
     val sc=new SparkContext(conf)
 
-    val data: RDD[String] = sc.textFile("file:///G:\\idea_workspace\\my_scala_demo\\input\\word.txt")
+    val wordRdd: _root_.org.apache.spark.rdd.RDD[(_root_.scala.Predef.String, Int)]
+      = getRdd(sc,"file:///G:\\idea_workspace\\my_scala_demo\\input\\word.txt")
+    val wordRdd2: _root_.org.apache.spark.rdd.RDD[(_root_.scala.Predef.String, Int)]
+    = getRdd(sc,"file:///G:\\idea_workspace\\my_scala_demo\\input\\word2.txt")
 
+
+
+//    combineWith2Steps(wordRdd,sc)
+    reducejoinToMapjoin(wordRdd,wordRdd2,sc)
+  }
+
+  private def getRdd(sc: SparkContext,path:String): RDD[(String, Int)] = {
+    val data: RDD[String] = sc.textFile(path)
     val wordRdd: RDD[(String, Int)] = data.flatMap(_.split(" ")).map((_, 1))
-
-
     MyUtils.printRdd("wordRdd:",wordRdd)
-    combineWith2Steps(wordRdd,sc)
+    wordRdd
   }
 
   /**
-   * 随机key-两阶段聚合
-   * @param rdd
+   * 1 随机key-两阶段聚合
+    *
+    * @param rdd
    */
   def combineWith2Steps(rdd:RDD[(String, Int)],sc:SparkContext):Unit={
     //使用广播变量 使得每个key对应的随机数均匀分发，即每个key对应的数据量拆分为x份
@@ -54,5 +64,38 @@ object SparkDataSkewTest {
     //进行第二次聚合
     val res: RDD[(String, Int)] = rddWithoutPre.reduceByKey(_ + _,2)
     MyUtils.printRdd("res",res)
+  }
+
+  /**
+    * 2 将reduce join转换为mapJoin 数据较小的rdd广播出去
+    * 注意：join操作是将2个rdd中具有相同key的数据进行连接，
+    * 如果rdd1 rdd2的某个key数据分别有6和2条，则连接后为12条。比如rdd1 hello有6个，rdd2 hello有2个，连接后为12个hello
+    * 故join操作不适合做wordcount
+    */
+  def reducejoinToMapjoin(rdd1:RDD[(String, Int)],rdd2:RDD[(String, Int)],sc:SparkContext):Unit={
+    //连接后 hello有12个
+//    val rjoinRdd: RDD[(String, (Int, Int))] = rdd1.join(rdd2)
+//    MyUtils.printRdd("rjoinRdd",rjoinRdd)
+//    val res2: RDD[(String, Int)] = rjoinRdd.map(x => {
+//      (x._1, x._2._1 + x._2._1)
+//    }).reduceByKey(_ + _)
+//    MyUtils.printRdd("res2:",res2)
+
+    //对较小的rdd1先进行聚合 然后广播出去
+    val map1=mutable.Map[String,Int]()
+    for(t<-rdd1.collect()){
+      val count=map1.getOrElse(t._1,0)
+      map1.put(t._1,t._2+count)
+    }
+    val bMap1: Broadcast[mutable.Map[String, Int]] = sc.broadcast(map1)
+    //对rdd2进行聚合，然后和广播出去的rdd1进行map join
+    val res: RDD[(String, Int)] = rdd2.reduceByKey(_+_).map(x => {
+      val rdd1Map = bMap1.value
+      val count = rdd1Map.getOrElse(x._1, 0)
+      (x._1, x._2 + count)
+    })
+    MyUtils.printRdd("res:",res)
+
+
   }
 }
