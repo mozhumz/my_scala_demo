@@ -30,7 +30,8 @@ object TestCase {
 //    map+=(1->"one",2->"two")
 //    println(map.getOrElse(1,"default"))
 //    testArr
-    testSet
+//    testSet
+    testMod
   }
 
   def testArr:Unit={
@@ -48,6 +49,12 @@ object TestCase {
 
   def testJoin:Unit={
 
+  }
+
+  def testMod:Unit={
+    val num=3
+    val hash = -32
+    println(hash%num)
   }
 
 
