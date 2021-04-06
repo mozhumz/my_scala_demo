@@ -1,9 +1,10 @@
 package com.hyj.spark.offline.dataskew
 
 import java.util
+
 import scala.collection.JavaConversions._
 import org.apache.spark.rdd.RDD
-import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.{Partition, Partitioner, SparkConf, SparkContext}
 import java.util.Random
 
 import com.hyj.spark.util.MyUtils
@@ -25,11 +26,11 @@ object SparkDataSkewTest {
     val wordRdd2: _root_.org.apache.spark.rdd.RDD[(_root_.scala.Predef.String, Int)]
     = getRdd(sc,"file:///G:\\idea_workspace\\my_scala_demo\\input\\word2.txt")
 
+    //    combineWith2Steps(wordRdd,sc)
+    //    reducejoinToMapjoin(wordRdd,wordRdd2,sc)
+    //    sampleKey(wordRdd,wordRdd2,sc)
 
 
-//    combineWith2Steps(wordRdd,sc)
-//    reducejoinToMapjoin(wordRdd,wordRdd2,sc)
-    sampleKey(wordRdd,wordRdd2,sc)
   }
 
   private def getRdd(sc: SparkContext,path:String): RDD[(String, Int)] = {
