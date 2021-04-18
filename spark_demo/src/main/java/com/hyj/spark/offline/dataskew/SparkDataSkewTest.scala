@@ -19,6 +19,7 @@ import scala.collection.mutable
 object SparkDataSkewTest {
   def main(args: Array[String]): Unit = {
     val conf = new SparkConf().setAppName("dataSkewApp").setMaster("local")
+    conf.set("spark.yarn.am.waitTime","1000s")
     val sc=new SparkContext(conf)
 
     val wordRdd: _root_.org.apache.spark.rdd.RDD[(_root_.scala.Predef.String, Int)]
