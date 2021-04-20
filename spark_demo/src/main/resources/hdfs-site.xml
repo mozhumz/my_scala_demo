@@ -17,11 +17,10 @@
 <!-- Put site-specific property overrides in this file. -->
 
 <configuration>
-    <property>  
-        <name>dfs.namenode.secondary.http-address</name>              
-        <value>master:9001</value>  
+    <property>
+        <name>dfs.namenode.secondary.http-address</name>
+        <value>master:9001</value>
     </property>
-     
 
     <property>
         <name>dfs.name.dir</name>
