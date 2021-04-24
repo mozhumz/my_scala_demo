@@ -274,8 +274,8 @@ object SparkRDDHyj {
     /**
       * (2) ShuffledRDD[2] at reduceByKey at SparkRDDHyj.scala:246 []
       * |  ReliableCheckpointRDD[3] at foreach at SparkRDDHyj.scala:248 []
-      * checkpoint 将当前调用checkpoint的rdd的父级rdd保存到磁盘，切断血缘关系，
-      * 这样调用者依赖于checkpoint的rdd（磁盘保存的rdd）
+      * checkpoint 将当前调用checkpoint的res的父级rdd1保存到磁盘，切断血缘关系，
+      * 这样调用者依赖于checkpoint的rdd1（磁盘保存的rdd1）
       */
     res.checkpoint()
 
