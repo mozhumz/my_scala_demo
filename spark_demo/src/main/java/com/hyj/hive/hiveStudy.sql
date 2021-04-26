@@ -76,13 +76,52 @@ limit 10;
 
 --作业：
 1. 将orders和priors建表入hive
+create table orders(
+order_id string,
+user_id string
+)
+row format delimited fields terminated by ',';
+
 2. 每个用户有多少个订单
 select user_id,count(1) as order_count from orders
+group by user_id
+order by order_count desc
+limit 20;
 3. 每个用户平均每个订单是多少商品
-select
+select o.user_id,avg(t.prod_cnt) as avg_prod_cnt from orders o
+left join
+(select order_id,count(1) as prod_cnt from priors group by order_id) t
+on o.order_id=t.order_id
+group by user_id
+order by avg_prod_cnt desc
+limit 20;
 4. 每个用户在一周中的购买订单的分布情况 --case when
 user_id dow_0 dow_1 dow_2 dow_3 dow_4 dow_5 dow_6
 1111      0    3      2    2      3     0     0
+ --方法一
+select user_id,collect_set(dow_cnt) as dow_cnt_set
+ from (
+select a.user_id,concat(a.order_dow,'_',a.dow_cnt) as dow_cnt
+from
+(select user_id,order_dow,count(1) as dow_cnt from orders
+group by user_id,order_dow
+order by user_id,dow_cnt desc
+) a) b
+group by user_id
+limit 20;
+
+--方法二
+select user_id,
+sum(case order_dow when '0' then 1 else 0 end) as dow_0,
+sum(case order_dow when '1' then 1 else 0 end) as dow_1 ,
+sum(case order_dow when '2' then 1 else 0 end) as dow_2 ,
+sum(case order_dow when '3' then 1 else 0 end) as dow_3,
+sum(case order_dow when '4' then 1 else 0 end) as dow_4 ,
+sum(case order_dow when '5' then 1 else 0 end) as dow_5 ,
+sum(case order_dow when '6' then 1 else 0 end) as dow_6
+from orders
+group by user_id
+limit 20;
 
 2539329,1,prior,1,2
 2398795,1,prior,2,3
