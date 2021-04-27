@@ -133,7 +133,40 @@ limit 20;
 3108588,1,prior,8,1
 2295261,1,prior,9,1
 2550362,1,prior,10,4
+
 5. 一个用户平均每个月购买多少个商品（30天一个月）平均每30天
+ --先查询每个用户商品数，再查询每个用户购买订单的间隔月份数，两者相除
+select user_id,sum(prod_cnt) as total_prod_cnt ,
+sum(cast(if(days_since_prior_order='','0',days_since_prior_order) as float))/30 as mon_cnt,
+sum(prod_cnt)/(sum(cast(if(days_since_prior_order='','0',days_since_prior_order) as float))/30) as prod_cnt_per_mon
+from orders a
+join (
+select order_id,count(1) as prod_cnt from priors
+where order_id!='order_id'
+group by order_id
+) b
+on  a.order_id=b.order_id
+where a.order_id!='order_id'
+group by user_id
+limit 10;
+
 6.每个用户最喜爱购买的三个product是什么。
 user_id product_id1,product_id2,product_id3
 			top1     top2        top3
+select *,
+ row_number() over(partition by user_id order by prod_cnt desc) as rno
+ from
+(select a.user_id,b.product_id,count(1) as prod_cnt
+ from orders a
+join priors b on a.order_id=b.order_id
+group by a.user_id,b.product_id) t
+limit 20;
+ --优化
+ select *,
+ row_number() over(distribute by user_id sort by prod_cnt desc) as rno
+ from
+(select a.user_id,b.product_id,count(1) as prod_cnt
+ from orders a
+join priors b on a.order_id=b.order_id
+group by a.user_id,b.product_id) t
+limit 20;
