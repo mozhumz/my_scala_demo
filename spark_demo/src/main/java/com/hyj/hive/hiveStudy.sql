@@ -162,11 +162,42 @@ join priors b on a.order_id=b.order_id
 group by a.user_id,b.product_id) t
 limit 20;
  --优化
- select *,
+ select user_id,collect_set(product_id) as prod_set
+( select *,
  row_number() over(distribute by user_id sort by prod_cnt desc) as rno
  from
 (select a.user_id,b.product_id,count(1) as prod_cnt
  from orders a
 join priors b on a.order_id=b.order_id
 group by a.user_id,b.product_id) t
-limit 20;
+) x
+where rno<=3
+group by user_id
+;
+
+-- 7 现有一个订单表，含有以下几个字段：order_info(order_id,user_id,pay_amount,pay_time,goods_level_1,goods_level_2)，
+-- 分别为订单ID、用户ID、成交金额、成交时间、一级类目，二级类目。
+
+-- 7.1 求最近7天内每一个类目下成交总金额排名前三的二级类目
+select goods_level_1,collect_list(goods_level_2) as amount_level2_set
+(select goods_level_1,goods_level_2,
+ row_number() over(partition by goods_level_1,goods_level_2 sort by amount2 desc) as rno
+from
+(select goods_level_1,goods_level_2,sum(pay_amount) as amount2
+from order_info
+where
+unix_timestamp()-from_unixtime(pay_time)<=7*24*3600*1000
+group by  goods_level_1,goods_level_2) t
+) x
+where
+rno<=3
+group by goods_level_1;
+
+-- 8 有订单详情表和活动报名表
+-- 订单详情表order_info(user_id,pay_amount,pay_time）
+-- 活动报名表act_apply(act_id,user_id,act_time)
+-- 8.1 统计每个活动对应所有用户在报名后产生的总订单金额、总订单数
+select act_id,sum(pay_amount),count(1) as total_cnt from order_info a
+join act_apply b on a.user_id=b.user_id
+where a.pay_time>b.act_time
+group by act_id;

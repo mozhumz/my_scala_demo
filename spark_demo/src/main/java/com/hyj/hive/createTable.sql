@@ -12,7 +12,7 @@ row format delimited fields terminated by ',';
 --1 加载本地文件到hive表
 load data local inpath
 '/home/badou/Documents/data/order_data/orders.csv'
-into table orders_ext;
+overwrite into table orders_ext;
 --2 加载hdfs文件到hive表
 load data inpath 'hdfs:///usr/local/hive/warehouse/badou.db/orders/orders.csv' into table orders_ext;
 
@@ -28,10 +28,10 @@ load data local inpath
 '/usr/local/src/hadoop_demo/hive/test20210428.txt'
 into table trace_log;
 
-字符串转时间戳 unix_timestamp('2021-01-01 00:00:00')
+字符串转时间戳(具体到秒) unix_timestamp('2021-01-01 00:00:00','yyyy-MM-dd HH:mm:ss')
 时间戳转字符串 from_unixtime(bigint,'yyyy-MM-dd HH:mm:ss')
 字符串转日期（具体到某天） to_date('2021-01-01 00:00:00')
--- lag与lead函数是跟偏移量相关的两个分析函数，通过这两个函数可以在一次查询中取出同一字段的前N行的数据(lag)
+-- lag与lead函数是跟偏移量相关的两个分析函数，通过这两个函数可以在一次查询中取出同一字段-当前行的前N行的数据(lag)
 -- 和后N行的数据(lead)作为独立的列,从而更方便地进行进行数据过滤。这种操作可以代替表的自联接，并且LAG和LEAD有更高的效率。
 -- over()表示 lag()与lead()操作的数据都在over()的范围内，over里面可以使用partition by 语句（用于分组）
 --  order by 语句（用于排序）。partition by a order by b表示以a字段进行分组，再 以b字段进行排序，对数据进行查询
@@ -46,3 +46,11 @@ user_id!=user_id2
 group by do_date;
 
 --统计每天符合以下条件的用户数：A操作之后是B操作，AB操作必须相邻
+select do_date,count(distinct user_id) as user_cnt from
+(select t.*,lead(t.do_type,1,null) over(partition by user_id,do_date order by do_time) as do_type2 from
+(select user_id,do_type,unix_timestamp(do_time) as do_time,to_date(do_time) as do_date
+from trace_log) t
+
+) x
+where  do_type='1' and do_type2='2'
+group by do_date;
