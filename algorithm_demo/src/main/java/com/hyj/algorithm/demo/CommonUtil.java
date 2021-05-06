@@ -2,6 +2,8 @@ package com.hyj.algorithm.demo;
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class CommonUtil {
     public static void printObjArray(Object[]arr){
@@ -40,4 +42,28 @@ public class CommonUtil {
         }
         return arr;
     }
+
+    /**
+     * 去除单词中的其他字符 只保留字母和数字
+     * @param word
+     * @return
+     */
+    public static String trimWord(String word,int wordType){
+        String s ;
+        if(wordType==2){
+            //中文
+            s="([\u4e00-\u9fa5]+)";
+        }else {
+            //英文
+            s="\\w+";
+        }
+        Pattern pattern = Pattern.compile(s);
+        Matcher ma = pattern.matcher(word);
+        boolean isWord=ma.find();
+        if(isWord){
+            return ma.group();
+        }
+        return null;
+    }
+
 }

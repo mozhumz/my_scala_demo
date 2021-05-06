@@ -30,7 +30,7 @@ object jieBa {
 
     val jiebaUdf = udf{(sentence:String)=>
       val exeSegmenter = broadcastSeg.value
-      exeSegmenter.process(sentence.toString,SegMode.INDEX)
+      exeSegmenter.process(sentence,SegMode.INDEX)
         .toArray().map(_.asInstanceOf[SegToken].word)
         //返回值为String
         .filter(_.length>1).mkString("/")
