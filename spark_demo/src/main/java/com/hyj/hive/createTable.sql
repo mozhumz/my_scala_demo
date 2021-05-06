@@ -47,10 +47,9 @@ group by do_date;
 
 --统计每天符合以下条件的用户数：A操作之后是B操作，AB操作必须相邻
 select do_date,count(distinct user_id) as user_cnt from
-(select t.*,lead(t.do_type,1,null) over(partition by user_id,do_date order by do_time) as do_type2 from
+(select t.*,lead(t.do_type,1,null) over(partition by user_id order by do_time) as do_type2 from
 (select user_id,do_type,unix_timestamp(do_time) as do_time,to_date(do_time) as do_date
 from trace_log) t
-
 ) x
 where  do_type='1' and do_type2='2'
 group by do_date;
