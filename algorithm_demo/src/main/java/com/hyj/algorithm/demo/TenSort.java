@@ -347,49 +347,10 @@ public class TenSort {
      */
     @Test
     public void testHeapSort() {
-        int[] arr = getIntsArr();
+        int[] arr = {67, 81, 41, 84, 19, 68, 59, 76, 97, 30};
         CommonUtil.printIntArray(arr);
-        heapSort(arr,arr.length,1);
+        heapSort(arr,arr.length,2);
         CommonUtil.printIntArray(arr);
-    }
-
-    /**
-     *  下沉操作，执行删除操作相当于把最后
-     *  * 一个元素赋给根元素之后，然后对根元素执行下沉操作
-     * @param arr
-     * @param parent 要下沉元素的下标
-     * @param length 数组长度
-     */
-    public static int[] downAdjust(int[] arr, int parent, int length,int sortType) {
-        //临时保证要下沉的元素
-        int temp = arr[parent];
-        //定位左孩子节点位置
-        int child = 2 * parent + 1;
-        //开始下沉
-        while (child < length) {
-            //如果右孩子节点比左孩子小，则定位到右孩子
-            if (child + 1 < length ) {
-                if(sortType==1&&arr[child] > arr[child + 1]){
-                    child++;
-                }else if(sortType==2&&arr[child] <arr[child + 1]){
-                    child++;
-                }
-            }
-            //如果父节点比孩子节点小或等于，则下沉结束
-            if (temp <= arr[child] &&sortType==1){
-                break;
-            }else {
-                if (temp >= arr[child] &&sortType==2){
-                    break;
-                }
-            }
-            //单向赋值
-            arr[parent] = arr[child];
-            parent = child;
-            child = 2 * parent + 1;
-        }
-        arr[parent] = temp;
-        return arr;
     }
 
     /**
@@ -415,6 +376,49 @@ public class TenSort {
         }
         return arr;
     }
+
+    /**
+     *  下沉操作，执行删除操作相当于把最后
+     *  * 一个元素赋给根元素之后，然后对根元素执行下沉操作
+     * @param arr
+     * @param parent 要下沉元素的下标
+     * @param length 数组长度
+     * @param sortType 1小顶堆 2大顶堆
+     */
+    public static int[] downAdjust(int[] arr, int parent, int length,int sortType) {
+        //临时保存要下沉的元素
+        int temp = arr[parent];
+        //定位左孩子节点位置
+        int child = 2 * parent + 1;
+        //开始下沉
+        while (child < length) {
+            //如果右孩子节点比左孩子小，则定位到右孩子
+            if (child + 1 < length ) {
+                if(sortType==1&&arr[child] > arr[child + 1]){
+                    child++;
+                }else if(sortType==2&&arr[child] <arr[child + 1]){
+                    child++;
+                }
+            }
+            //如果父节点比孩子节点小或等于，则下沉结束
+            if (temp <= arr[child] &&sortType==1){
+                break;
+            }
+            if (temp >= arr[child] &&sortType==2){
+                break;
+            }
+            //父节点和子节点元素交换
+            if(parent!=child){
+                arr[parent] = arr[child];
+                parent = child;
+                child = 2 * parent + 1;
+            }
+        }
+        arr[parent] = temp;
+        return arr;
+    }
+
+
 
     /**
      * 8 计数排序

@@ -66,4 +66,14 @@ public class CommonUtil {
         return null;
     }
 
+    public static void main(String[] args) {
+        String str="123";
+        String reg="^[0-9]{1,2}$";
+        Pattern pattern=Pattern.compile(reg);
+        Matcher matcher = pattern.matcher("xx12");
+
+//        System.out.println(matcher.matches());
+        System.out.println(Pattern.matches(reg,str));
+    }
+
 }

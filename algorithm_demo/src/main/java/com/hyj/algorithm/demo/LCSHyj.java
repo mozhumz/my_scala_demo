@@ -193,16 +193,25 @@ public class LCSHyj {
     }
 
     /**
-     * 最长公共连续字符串
+     * 最长公共连续字符串lccs
+     * 分析：
+     * str1.len=m str2.len=n
+     * lccs的长度范围: [0,m]，使用双循环，定义最大字符串lccs为max
+     * 假设长度为m，则从str1下标0开始和str2的所有字符进行比较，找出str1下标=0开始的最大lccs和max比较
+     * 假设长度为m-1，则从str1下标1开始和str2的所有字符进行比较，找出str1下标=1开始的最大lccs和max比较
+     * 假设长度为m-2，则从str1下标2开始和str2的所有字符进行比较，找出str1下标=2开始的最大lccs和max比较
+     *
      */
     public static void lccs() {
-        String str1 = new String("abcdesbcdf");
-        String str2 = new String("aebcdfe");
-        byte[] char1 = str1.getBytes();
-        byte[] char2 = str2.getBytes();
-        int len1 = char1.length;
-        int len2 = char2.length;
-        String maxchar = new String("");
+        String str1 = "abcdesbcdf";
+        String str2 = "aebcdfe";
+//        byte[] char1 = str1.getBytes();
+//        byte[] char2 = str2.getBytes();
+        char[] chars1 = str1.toCharArray();
+        char[] chars2 = str2.toCharArray();
+        int len1 = chars1.length;
+        int len2 = chars2.length;
+        String maxchar = "";
         StringBuffer temp = new StringBuffer(" ");
         int maxl = 0;
         for (int i = 0; i < len1; i++) {
@@ -212,9 +221,10 @@ public class LCSHyj {
                 int l = 0;
                 //temp = new StringBuffer("");
                 temp.delete(0, temp.length());
-                while (char1[pos1] == char2[pos2]) {
+
+                while (chars1[pos1] == chars2[pos2]) {
                     l++;
-                    temp.append((char) char1[pos1]);
+                    temp.append(chars1[pos1]);
                     if (++pos1 > len1 - 1) break;
                     if (++pos2 > len2 - 1) break;
                 }
@@ -231,21 +241,21 @@ public class LCSHyj {
 
 
     public static void main(String[] args) {
-//        char[] X = {'A', 'B', 'C', 'B', 'D', 'A', 'B'};
-//        char[] Y = {'B', 'D', 'C', 'A', 'B', 'A'};
-//        String str1 = String.valueOf(X);
-//        String str2 = String.valueOf(Y);
-//        System.out.println(str1);
-//        System.out.println(str2);
-//        int n = X.length;
-//        int m = Y.length;
-//        int[][] matrix = getMatrix(X, Y);
-////        print(matrix, n, m);
+        char[] X = {'A', 'B', 'C', 'B', 'D', 'A', 'B'};
+        char[] Y = {'B', 'D', 'C', 'A', 'B', 'A'};
+        String str1 = String.valueOf(X);
+        String str2 = String.valueOf(Y);
+        System.out.println(str1);
+        System.out.println(str2);
+        int n = X.length;
+        int m = Y.length;
+        int[][] matrix = getMatrix(X, Y);
+        print(matrix, n, m);
 //        print(B, n, m);
 //        String res = String.valueOf(getLcs(n, m, X, Y));
 //        System.out.println(res);
 //
-//        System.out.println(maxLengthOfLCS(str1, str2));
+        System.out.println(maxLengthOfLCS(str1, str2));
 //        print(B, n, m);
 //        System.out.println(getLCSByB(str1,str2));
         lccs();
