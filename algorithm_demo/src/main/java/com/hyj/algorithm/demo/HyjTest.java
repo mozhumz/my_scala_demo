@@ -1,11 +1,15 @@
 package com.hyj.algorithm.demo;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import org.junit.Test;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class HyjTest {
+    public static volatile int exeCount = 0;
+
     @Test
     public void test1() {
         System.out.println(robotGrid(3, 5));
@@ -178,7 +182,7 @@ public class HyjTest {
     public void test4() {
         int[] arr = {67, 81, 41, 84, 19, 68, 59, 76, 97, 30};
         CommonUtil.printIntArray(arr);
-        heapSort(arr,2);
+        heapSort(arr, 2);
         CommonUtil.printIntArray(arr);
     }
 
@@ -198,7 +202,7 @@ public class HyjTest {
         int right = left + 1;
         while (left < len) {
             //如果右节点比左节点值小-小顶堆
-            if(left+1<len){
+            if (left + 1 < len) {
                 if (sortType == 1 && arr[left] > arr[right]) {
                     left++;
                 }
@@ -233,14 +237,209 @@ public class HyjTest {
             adjustDown(arr, len, i, sortType);
         }
         //堆排序-首位元素交换，且首元素下沉
-        for (int i = len-1; i >=0; i--) {
-            int end=arr[i];
-            arr[i]=arr[0];
-            arr[0]=end;
-            adjustDown(arr,i,0,sortType);
+        for (int i = len - 1; i >= 0; i--) {
+            int end = arr[i];
+            arr[i] = arr[0];
+            arr[0] = end;
+            adjustDown(arr, i, 0, sortType);
         }
 
         return arr;
     }
 
+
+    /**
+     * 在一个 n * m 的二维数组中，每一行都按照从左到右递增的顺序排序，每一列都按照从上到下递增的顺序排序。
+     * 请完成一个高效的函数，输入这样的一个二维数组和一个整数，判断数组中是否含有该整数。
+     * 示例:
+     * 现有矩阵 matrix 如下：
+     * [
+     * [1,   4,  7, 11, 15],
+     * [2,   5,  8, 12, 19],
+     * [3,   6,  9, 16, 22],
+     * [10, 13, 14, 17, 24],
+     * [18, 21, 23, 26, 30]
+     * ]
+     * 给定 target=5，返回true。
+     * 给定target=20，返回false
+     * <p>
+     * 来源：力扣（LeetCode）
+     * 链接：https://leetcode-cn.com/problems/er-wei-shu-zu-zhong-de-cha-zhao-lcof
+     */
+    @Test
+    public void test5() {
+        String str = "[[1, 4, 7, 11, 15]," +
+                "    [2, 5, 8, 12, 19]," +
+                "    [3, 6, 9, 16, 22]," +
+                "    [10,13,14,17, 24]," +
+                "    [18,21,23,26, 30]] ";
+        str = "[  [1, 2, 3, 4, 5]," +
+                " [6, 7, 8, 9, 10]," +
+                " [11,12,13,14,15]," +
+                " [16,17,18,19,20]," +
+                " [21,22,23,24,25]]  ";
+//        str = "[[-1,3]]";
+        str = "[[1,3,5,7,9],[2,4,6,8,10],[11,13,15,17,19],[12,14,16,18,20],[21,22,23,24,25]] ";
+        str="[[1],[3],[5]]";
+        JSONArray jsonArray = JSON.parseArray(str);
+        int len = jsonArray.size();
+        int n=1;
+        int[][] arr = new int[len][n];
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JSONArray o = (JSONArray) jsonArray.get(i);
+            int[] arr2 = new int[n];
+            for (int j = 0; j < n; j++) {
+                arr2[j] = (int) o.get(j);
+            }
+            arr[i] = arr2;
+        }
+//        System.out.println(Arrays.asList(arr));
+        System.out.println(findNumberIn2DArray(arr, 2));
+        System.out.println(findNumberIn2DArray2(arr, 2));
+    }
+
+    /**
+     * @param matrix
+     * @param target
+     * @return 遍历每行，对每行的数组使用二分查找
+     */
+    public boolean findNumberIn2DArray(int[][] matrix, int target) {
+        int m = matrix.length;
+        Integer n = checkMatrix(matrix, target, m);
+        if (n == null) return false;
+        for (int i = 0; i < m; i++) {
+            int[] arr = matrix[i];
+            if (target < arr[0] || target > arr[n - 1]) {
+                continue;
+            }
+            if (binarySearch(arr, target, 0, n / 2, n - 1)) {
+                return true;
+            }
+
+        }
+
+//        int i = 0;
+//        int j = 0;
+//        while (i < m && j < n) {
+//            if (matrix[i][j] == target) {
+//                return true;
+//            }
+//            if (matrix[i][j] > target) {
+//                i--;
+//                j--;
+//                int tmpI=i;
+//                if(i<0||j<0){
+//                    break;
+//                }
+//                //往下或右寻找
+//                while (i<m){
+//                    if (matrix[i][j] == target) {
+//                        return true;
+//                    }
+//                    i++;
+//                }
+//                while (j<n){
+//                    if (matrix[tmpI][j] == target) {
+//                        return true;
+//                    }
+//                    j++;
+//                }
+//                break;
+//            }
+//            if(i+1<m &&j+1<n ){
+//                i++;
+//                j++;
+//            }else if(i+1<m){
+//                i++;
+//            }else if(j+1<n){
+//                j++;
+//            }
+//        }
+
+
+        return false;
+    }
+
+    private Integer checkMatrix(int[][] matrix, int target, int m) {
+        if (m == 0) {
+            return null;
+        }
+        int n = matrix[0].length;
+        if (n == 0) {
+            return null;
+        }
+        if (target < matrix[0][0] || target > matrix[m - 1][n - 1]) {
+            return null;
+        }
+        return n;
+    }
+
+    /**
+     * 从右上角开始，定义arr[i][j]为右上角的元素
+     * 如果target=arr[i][j]，直接返回true
+     * 如果target<arr[i][j]，则往左移动一步，j--(j>=0)
+     * 如果target>arr[i][j]，则往下移动一步，i++(i<m)
+     * 直到左下角
+     * 注意数组判空
+     *
+     * @param matrix
+     * @param target
+     * @return
+     */
+    public boolean findNumberIn2DArray2(int[][] matrix, int target) {
+        int m = matrix.length;
+        Integer n = checkMatrix(matrix, target, m);
+        if (n == null) return false;
+        int i = 0;
+        int j = n - 1;
+        while (i < m && j >=0) {
+            if (target == matrix[i][j]) {
+                return true;
+            }
+            if (target < matrix[i][j]) {
+                j--;
+            } else {
+                i++;
+            }
+        }
+        return false;
+    }
+
+    public static boolean binarySearch(int[] arr, int target, int l, int mid, int r) {
+        exeCount++;
+        if (mid < l || mid > r) {
+            return false;
+        }
+        if (arr[mid] == target) {
+            return true;
+        }
+        if (l == mid && mid == r) {
+            return arr[mid] == target;
+        }
+        if (target < arr[mid]) {
+            if (mid - 1 < 0) {
+                return false;
+            }
+            return binarySearch(arr, target, l, (mid - 1 + l) / 2, mid - 1);
+        } else {
+            if (mid + 1 > r) {
+                return false;
+            }
+            return binarySearch(arr, target, mid + 1, (r + mid + 1) / 2, r);
+        }
+    }
+
+    @Test
+    public void test6() {
+        int[] arr = {1, 4, 7, 21, 22, 23, 24, 25, 30, 31, 36, 39, 45, 88};
+        //2 2 3  3 2 3
+        for (int i = 0; i < arr.length; i++) {
+            exeCount = 0;
+            System.out.println(arr[i] + ":" + binarySearch(arr, arr[i], 0, arr.length / 2, arr.length - 1)
+                    + " exeCount:" + exeCount);
+
+        }
+        exeCount = 0;
+        System.out.println(-1 + ":" + binarySearch(arr, -1, 0, arr.length / 2, arr.length - 1) + " exeCount:" + exeCount);
+    }
 }

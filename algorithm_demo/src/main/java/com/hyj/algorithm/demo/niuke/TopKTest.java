@@ -35,6 +35,7 @@ public class TopKTest {
                 }
             }
             System.out.println(sb);
+            sb.substring(1,2);
 
         }
     }

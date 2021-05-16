@@ -7,6 +7,7 @@ import java.util.Random;
 
 /**
  * 十大排序算法
+ * https://zhuanlan.zhihu.com/p/34894768
  */
 public class TenSort {
 
@@ -344,6 +345,14 @@ public class TenSort {
 
     /**
      * 7 堆排序
+     * 二叉堆的特点，以大顶堆为例：
+     * 1 父节点有2个子节点（最后一层父节点可能只有1个 子节点）
+     * 2 父节点元素值parent>=子节点元素值child
+     * 堆排序流程：
+     * 堆使用数组存储，初始是无序的，默认第一个元素为根节点，接着是左右子节点left right，
+     * 1 从最后一层的父节点p开始进行下沉调整：如果p<=子节点c（c为子节点中的较大值），
+     * 则p和c交换,c变为下一层的child（arr[p]=cVal p=c c=2*p+1） 当p>=c时，arr[p]=pVal
+     * 2 排序，将首尾元素交换，然后对根元素下沉
      */
     @Test
     public void testHeapSort() {
@@ -420,6 +429,8 @@ public class TenSort {
 
 
 
+
+
     /**
      * 8 计数排序
      * 找到数组中的最大值和最小值 max min
@@ -474,6 +485,13 @@ public class TenSort {
 
         return arr;
     }
+
+    @Test
+    public void testBucketSort(){
+
+    }
+
+
 
 
 }
