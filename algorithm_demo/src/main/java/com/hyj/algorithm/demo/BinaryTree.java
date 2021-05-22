@@ -2,8 +2,10 @@ package com.hyj.algorithm.demo;
 
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 二叉树
@@ -134,9 +136,10 @@ public class BinaryTree {
 
     /**
      * 中序遍历就是先访问左节点，再访问根节点，最后访问右节点
+     *
      * @param root
      */
-    public static void middleOrder(TreeNode root){
+    public static void middleOrder(TreeNode root) {
         if (root == null) {
             return;
         }
@@ -147,9 +150,10 @@ public class BinaryTree {
 
     /**
      * 先访问左节点，再访问右节点，最后访问根节点
+     *
      * @param root
      */
-    public static void backOrder(TreeNode root){
+    public static void backOrder(TreeNode root) {
         if (root == null) {
             return;
         }
@@ -160,6 +164,7 @@ public class BinaryTree {
 
     /**
      * 层序遍历
+     *
      * @param root
      */
     public static void levelOrder(TreeNode root) {
@@ -173,5 +178,77 @@ public class BinaryTree {
         }
     }
 
+    /**
+     * 剑指 Offer 07. 重建二叉树
+     * 输入某二叉树的前序遍历和中序遍历的结果，请重建该二叉树。假设输入的前序遍历和中序遍历的结果中都不含重复的数字。
+     * <p>
+     * 例如，给出
+     * 前序遍历 preorder =[3,9,20,15,7]
+     * 中序遍历 inorder = [9,3,15,20,7]
+     * 返回如下的二叉树：
+     *  3
+     * / \
+     * 9  20
+         /  \
+        15   7
+     * <p>
+     * 分析：
+     * 前序：根 左 右
+     * 中序：左 根 右
+     * 每个子树都有若干子树（叶子节点也可以看作子树），每个节点都可以看作子树的根节点，
+     * 重建过程是递归创建子树根节点的过程
+     *
+     * 1 找出根节点：根节点为前序遍历的第一个元素
+     * 2 创建根节点：假设根节点在前序和中序的下标分别为root_pre root_in，
+     * 则左子树的前序根节点为root_pre+1，右子树的前序根节点为root_pre+1+left_len
+     * 3 创建左右子树：利用中序计算左子树的长度left_len=root_in-left，在前序中找出左右子树的根节点
+     * 左子树的中序右边界为root_in-1，右子树的中序左边界为root_in+1
+     * 4 重复上述过程
+     */
+    @Test
+    public void test2() {
+        int[] preorder = {3, 9, 20, 15, 7};
+        int[] inorder = {9, 3, 15, 20, 7};
+        TreeNode treeNode = buildTree(preorder, inorder);
+        System.out.println(treeNode);
+    }
 
+    /**
+     * @param preorder
+     * @param inorder
+     * @return
+     */
+    public TreeNode buildTree(int[] preorder, int[] inorder) {
+        //
+        Map<Integer, Integer> inMap=new HashMap<>();
+        for (int i = 0; i < inorder.length; i++) {
+            inMap.put(inorder[i],i);
+        }
+        return buildTree(preorder,inMap,0,0,inorder.length-1);
+    }
+
+    /**
+     * 根据前序和中序重建二叉树
+     * 注意left_in和right_in只是递归的出口，并不会决定根节点的位置
+     * @param preorder 前序数组
+     * @param inMap 中序：元素值-数组下标
+     * @param root_pre 前序的根节点下标
+     * @param left_in 中序的左边界
+     * @param right_in 中序的右边界
+     * @return
+     */
+    public TreeNode buildTree(int[] preorder, Map<Integer, Integer> inMap, int root_pre, int left_in, int right_in) {
+        if(left_in>right_in){
+            return null;
+        }
+        TreeNode root=new TreeNode(preorder[root_pre]);
+        //根节点的中序下标
+        int root_in=inMap.get(preorder[root_pre]);
+        //左子树长度
+        int left_len=root_in-left_in;
+        root.left=buildTree(preorder,inMap,root_pre+1,left_in,root_in-1);
+        root.right=buildTree(preorder,inMap,root_pre+1+left_len,root_in+1,right_in);
+
+        return root;
+    }
 }
