@@ -85,12 +85,12 @@ public class TmpTest {
         int j = numbers.length - 1;
         while (i < j) {
             int m = (i + j) / 2;
-            if(numbers[m]<numbers[j]){
-                j=m;
-            }else if(numbers[m]>numbers[j]){
-                i=m+1;
+            if (numbers[m] < numbers[j]) {
+                j = m;
+            } else if (numbers[m] > numbers[j]) {
+                i = m + 1;
 
-            }else {
+            } else {
                 j--;
             }
         }
@@ -98,50 +98,97 @@ public class TmpTest {
     }
 
     public int search(int[] nums, int target) {
-        if(nums.length==0){
+        if (nums.length == 0) {
             return -1;
         }
-        int i=0;
-        int j=nums.length-1;
-        while (i<j){
-            int mid=(j+i)/2;
-            if(nums[mid]==target){
+        int i = 0;
+        int j = nums.length - 1;
+        while (i < j) {
+            int mid = (j + i) / 2;
+            if (nums[mid] == target) {
                 return mid;
-            }else if(nums[mid]<target){
-                i=mid+1;
-            }else {
-                j=mid-1;
+            } else if (nums[mid] < target) {
+                i = mid + 1;
+            } else {
+                j = mid - 1;
             }
         }
-        if(nums[i]==target){
+        if (nums[i] == target) {
             return i;
-        }else if(nums[i]<target){
-            return i+1;
-        }else {
-            if(i==0){
+        } else if (nums[i] < target) {
+            return i + 1;
+        } else {
+            if (i == 0) {
                 return 0;
             }
-            return i-1;
+            return i - 1;
         }
     }
+
     public int search2(int[] nums, int target) {
 
-        return search(nums,target,0,nums.length-1);
+        return search(nums, target, 0, nums.length - 1);
     }
 
-    public int search(int[]nums,int target,int left,int right){
-        if(left>right){
+    public int search(int[] nums, int target, int left, int right) {
+        if (left > right) {
             return -1;
         }
-        int mid=(left+right)/2;
-        if(nums[mid]==target){
+        int mid = (left + right) / 2;
+        if (nums[mid] == target) {
             return mid;
-        }else if(nums[mid]<target){
-            return search(nums,target,mid+1,right);
-        }else {
-            return search(nums,target,left,mid-1);
+        } else if (nums[mid] < target) {
+            return search(nums, target, mid + 1, right);
+        } else {
+            return search(nums, target, left, mid - 1);
         }
     }
+
+    @Test
+    public void test202105222029() {
+
+    }
+
+//    public boolean exist(char[][] board, String word) {
+//        if (word == null || word.length() == 0 || board == null || board.length == 0) {
+//            return false;
+//        }
+//        int m = board.length;
+//        int n = board[0].length;
+//        if (n == 0) {
+//            return false;
+//        }
+//        //遍历每行 以每行每个元素为起点，开始寻找=word[0]的字符，如果找到则向右、向左和向下找下一个
+//        for (int i = 0; i < m; i++) {
+//            for (int j = 0; j < n; j++) {
+//                if(board[i][j]==word.charAt(0)){
+//
+//                }
+//            }
+//        }
+//
+//        return false;
+//    }
+
+    public boolean exist(char[][] board, String word) {
+        char[] words = word.toCharArray();
+        for(int i = 0; i < board.length; i++) {
+            for(int j = 0; j < board[0].length; j++) {
+                if(dfs(board, words, i, j, 0)) return true;
+            }
+        }
+        return false;
+    }
+    boolean dfs(char[][] board, char[] word, int i, int j, int k) {
+        if(i >= board.length || i < 0 || j >= board[0].length || j < 0 || board[i][j] != word[k]) return false;
+        if(k == word.length - 1) return true;
+        board[i][j] = '\0';
+        boolean res = dfs(board, word, i + 1, j, k + 1) || dfs(board, word, i - 1, j, k + 1) ||
+                dfs(board, word, i, j + 1, k + 1) || dfs(board, word, i , j - 1, k + 1);
+        board[i][j] = word[k];
+        return res;
+    }
+
 
 }
 
