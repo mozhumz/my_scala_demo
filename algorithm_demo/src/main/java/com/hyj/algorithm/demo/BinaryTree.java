@@ -332,4 +332,34 @@ public class BinaryTree {
 
         return root;
     }
+
+    @Test
+    public void test202105242038(){
+        int len=7;
+        int[]arr={6,4,8,3,5,7,9};
+//        for(int i=0;i<7;i++){
+//            arr[i]=i;
+//        }
+        TreeNode node=createTreeNode(arr,0);
+//        frontOrder(node);
+        levelOrder(node);
+    }
+
+    /**
+     * 创建二叉树
+     * @param arr
+     * @param i
+     * @return
+     */
+    public TreeNode createTreeNode(int[]arr,int i){
+        if(i>arr.length-1){
+            return null;
+        }
+        TreeNode root=new TreeNode(arr[i]);
+        root.left=createTreeNode(arr,i*2+1);
+        root.right=createTreeNode(arr,2*i+2);
+
+        return root;
+    }
+
 }
