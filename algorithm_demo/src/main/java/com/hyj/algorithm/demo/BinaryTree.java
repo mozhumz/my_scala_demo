@@ -43,7 +43,7 @@ public class BinaryTree {
      */
     @Test
     public void validateBinarySearchTree() {
-
+        validateBinarySearchTree(null);
     }
 
 
@@ -134,9 +134,10 @@ public class BinaryTree {
 
     /**
      * 中序遍历就是先访问左节点，再访问根节点，最后访问右节点
+     *
      * @param root
      */
-    public static void middleOrder(TreeNode root){
+    public static void middleOrder(TreeNode root) {
         if (root == null) {
             return;
         }
@@ -147,9 +148,10 @@ public class BinaryTree {
 
     /**
      * 先访问左节点，再访问右节点，最后访问根节点
+     *
      * @param root
      */
-    public static void backOrder(TreeNode root){
+    public static void backOrder(TreeNode root) {
         if (root == null) {
             return;
         }
@@ -160,6 +162,7 @@ public class BinaryTree {
 
     /**
      * 层序遍历
+     *
      * @param root
      */
     public static void levelOrder(TreeNode root) {
@@ -173,5 +176,89 @@ public class BinaryTree {
         }
     }
 
+    /**
+     * 输入一棵二叉树的根节点，判断该树是不是平衡二叉树。如果某二叉树中任意节点的左右子树的深度相差不超过1，
+     * 那么它就是一棵平衡二叉树。
+     * <p>
+     * 示例 1:
+     * 给定二叉树 [3,9,20,null,null,15,7]
+     * 3
+     * / \
+     * 9  20
+     * /  \
+     * 15   7
+     * 返回 true 。
+     * <p>
+     * 示例 2:
+     * 给定二叉树 [1,2,2,3,3,null,null,4,4]
+     * 1
+     * / \
+     * 2   2
+     * / \
+     * 3   3
+     * / \
+     * 4   4
+     * 返回false
+     *
+     * 分析：
+     * 1 当前根节点的高度=max(左子树高度,右子树高度)+1
+     * 2 从根节点开始计算左右子树的高度，子树高度=max(左子树高度,右子树高度)+1，如果左右子树高度差大于1则返回-1
+     * 如此递归1 2，则可以从底至上，计算出每颗子树的高度了level，如果level!=-1则为平衡二叉树
+     */
+    @Test
+    public void test202105241237() {
+
+    }
+
+    /**
+     * 计算当前节点左右子树是否平衡
+     * @param root
+     * @return
+     */
+    public boolean isBalanced(TreeNode root) {
+//        if (root == null) {
+//            return true;
+//        }
+//        //计算当前根节点左右子树的高度
+//        int left = countLevel(root.left, 0);
+//        int right = countLevel(root.right, 0);
+//        if (Math.abs(left - right) > 1) {
+//            return false;
+//        }
+//        //递归判断当前节点左右子树的根节点是否平衡
+//        boolean l=isBalanced(root.left);
+//        boolean r=isBalanced(root.right);
+//        if(!l||!r){
+//            return false;
+//        }
+
+        return countLevel(root,0)!=-1;
+    }
+
+    /**
+     * 计算子树的高度
+     * @param node
+     * @param count
+     * @return
+     */
+    public int countLevel(TreeNode node, int count) {
+        if(node==null){
+            return count;
+        }
+        count++;
+        int leftCount=countLevel(node.left,count);
+        if(leftCount==-1){
+            return -1;
+        }
+        int rightCount=countLevel(node.right,count);
+        if(rightCount==-1){
+            return -1;
+        }
+        if(Math.abs(leftCount-rightCount)>1){
+            return -1;
+        }
+
+        return Math.max(leftCount,rightCount);
+    }
 
 }
