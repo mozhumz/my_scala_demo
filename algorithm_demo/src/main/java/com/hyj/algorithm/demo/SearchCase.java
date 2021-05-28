@@ -2,6 +2,9 @@ package com.hyj.algorithm.demo;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 搜索算法
  */
@@ -79,6 +82,96 @@ public class SearchCase {
         his[i][j]=false;
 
         return res;
+    }
+
+    /**
+     * 22. 括号生成
+     * 数字 n代表生成括号的对数，请你设计一个函数，用于能够生成所有可能的并且 有效的 括号组合。
+     * 示例 1：
+     * 输入：n = 3
+     * 输出：["((()))","(()())","(())()","()(())","()()()"]
+     * <p>
+     * 示例 2：
+     * 输入：n = 1
+     * 输出：["()"]
+     * <p>
+     * 提示：
+     * 1 <= n <= 8
+     * <p>
+     * 分析：
+     * 如果n组括号合法，则起始位置一定是左括号(，与之相对应的右括号，可能会包含多组括号，
+     * 包含的括号数量范围在[0,n-1]，设包含的括号数量为p，未被包含的数量q，则p+q=n-1
+     * 即：可能的n组有效括号是：(p组括号的排列组合)q组括号的排列组合, p ->[0,n-1]
+     */
+    @Test
+    public void test202105281236() {
+//        System.out.println(generateParenthesis(4));
+        System.out.println(generateParenthesis2(3));
+    }
+
+    public List<String> generateParenthesis(int n) {
+        List<List<String>> totalList = new ArrayList<>(n);
+        List<String> resOf0 = new ArrayList<>();
+        resOf0.add("");
+        totalList.add(resOf0);
+        List<String> resOf1 = new ArrayList<>();
+        resOf1.add("()");
+        totalList.add(resOf1);
+        for (int i = 2; i <= n; i++) {
+            List<String> resOfI = new ArrayList<>();
+            for (int j = 0; j < i; j++) {
+                List<String> pList = totalList.get(j);
+                List<String> qList = totalList.get(i - 1 - j);
+                for (String p : pList) {
+                    for (String q : qList) {
+                        resOfI.add("(" + p + ")" + q);
+                    }
+                }
+            }
+            totalList.add(resOfI);
+        }
+
+        return totalList.get(n);
+    }
+
+    public List<String> generateParenthesis2(int n) {
+        List<String>res=new ArrayList<>();
+        generateParenthesisDFS(res,n,n,"");
+        return res;
+    }
+
+    /**
+     * 深度优先搜索查找符合条件的括号组合
+     * 合法的括号组合一定是左右括号相互匹配，定义left right为每次剩余的左右括号数量，
+     * 每次搜索执行如下操作：
+     * 0 搜索的出口：left==right==0
+     * 1 剪枝去掉非法组合的条件：left>right，即已经追加的字符串cur中右括号数量>左括号数量
+     * 2 先追加左括号，前提left>0，执行left-1并递归
+     * 3 追加右括号，前提left<right
+     *
+     * @param res
+     * @param left
+     * @param right
+     * @param cur
+     */
+    public void generateParenthesisDFS(List<String> res, int left, int right, String cur) {
+        if (left == 0 && right == 0) {
+            res.add(cur);
+            return;
+        }
+//        if (left > right) {
+//            return;
+//        }
+
+        if(left>0){
+            generateParenthesisDFS(res,left-1,right,cur+"(");
+        }
+
+        if(left<right){
+            generateParenthesisDFS(res,left,right-1,cur+")");
+        }
+
+
     }
 
 
