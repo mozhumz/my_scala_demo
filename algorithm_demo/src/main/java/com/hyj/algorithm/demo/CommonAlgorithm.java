@@ -617,6 +617,38 @@ public class CommonAlgorithm {
     }
 
 
+    @Test
+    public void test202106011716(){
+//        System.out.println(hammingWeight(9));
+        System.out.println(myPow(1,2147483647));
+    }
+    public int hammingWeight(int n) {
+        int count=0;
+        char[] chars = Integer.toBinaryString(n).toCharArray();
+        for(char ch:chars){
+            if(ch=='1'){
+                count++;
+            }
+        }
+        return count;
+    }
 
 
+
+    public double myPow(double x, int n) {
+
+        double res=1.;
+        if(x==1.){
+            return res;
+        }
+        while (n>=1){
+            res*=x;
+            n--;
+        }
+        while (n<0){
+            res/=x;
+            n++;
+        }
+        return res;
+    }
 }

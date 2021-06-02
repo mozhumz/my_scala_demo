@@ -3,6 +3,8 @@ package com.hyj.algorithm.demo;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -10,7 +12,7 @@ import java.util.List;
  */
 public class SearchCase {
     /**
-     * 深度优先搜索（DFS Deep First Search）
+     * 深度优先搜索（DFS Depth First Search）
      * 给定一个m x n 二维字符网格board 和一个字符串单词word 。如果word 存在于网格中，返回 true ；否则，返回 false 。
      * <p>
      * 单词必须按照字母顺序，通过相邻的单元格内的字母构成，其中“相邻”单元格是那些水平相邻或垂直相邻的单元格。
@@ -44,17 +46,17 @@ public class SearchCase {
 
     public boolean exist(char[][] board, String word) {
         int m = board.length;
-        if (m == 0||word==null||word.length()==0) {
+        if (m == 0 || word == null || word.length() == 0) {
             return false;
         }
         int n = board[0].length;
         if (n == 0) {
             return false;
         }
-        boolean[][]his=new boolean[m][n];
+        boolean[][] his = new boolean[m][n];
         for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
-                if(exist(board,word,his,i,j,0,m,n)){
+                if (exist(board, word, his, i, j, 0, m, n)) {
                     return true;
                 }
             }
@@ -74,12 +76,12 @@ public class SearchCase {
             return true;
         }
         //开始在ij位置为起点进行递归搜索 标记ij位置
-        his[i][j]=true;
-        boolean res=exist(board,word,his,i+1,j,k+1,m,n)||exist(board,word,his,i,j+1,k+1,m,n)
-                ||exist(board,word,his,i-1,j,k+1,m,n)||exist(board,word,his,i,j-1,k+1,m,n);
+        his[i][j] = true;
+        boolean res = exist(board, word, his, i + 1, j, k + 1, m, n) || exist(board, word, his, i, j + 1, k + 1, m, n)
+                || exist(board, word, his, i - 1, j, k + 1, m, n) || exist(board, word, his, i, j - 1, k + 1, m, n);
 
         //ij位置搜索完毕 清除标记
-        his[i][j]=false;
+        his[i][j] = false;
 
         return res;
     }
@@ -135,8 +137,8 @@ public class SearchCase {
     }
 
     public List<String> generateParenthesis2(int n) {
-        List<String>res=new ArrayList<>();
-        generateParenthesisDFS(res,n,n,"");
+        List<String> res = new ArrayList<>();
+        generateParenthesisDFS(res, n, n, "");
         return res;
     }
 
@@ -150,7 +152,7 @@ public class SearchCase {
      * 3 追加右括号，前提left<right
      *
      * @param res
-     * @param left 剩余的左括号数量
+     * @param left  剩余的左括号数量
      * @param right 剩余的右括号数量
      * @param cur
      */
@@ -162,12 +164,12 @@ public class SearchCase {
 //        if (left > right) {
 //            return;
 //        }
-        if(left>0){
-            generateParenthesisDFS(res,left-1,right,cur+"(");
+        if (left > 0) {
+            generateParenthesisDFS(res, left - 1, right, cur + "(");
         }
 
-        if(left<right){
-            generateParenthesisDFS(res,left,right-1,cur+")");
+        if (left < right) {
+            generateParenthesisDFS(res, left, right - 1, cur + ")");
         }
 
     }
@@ -178,21 +180,49 @@ public class SearchCase {
      * 示例 1：
      * 输入：nums = [1,2,3]
      * 输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
-     *
+     * <p>
      * 示例 2：
      * 输入：nums = [0,1]
      * 输出：[[0,1],[1,0]]
-     *
+     * <p>
      * 示例 3：
      * 输入：nums = [1]
      * 输出：[[1]]
-     *
+     * <p>
+     * 分析：
+     * 我们尝试在纸上写 33 个数字、44 个数字、55 个数字的全排列，相信不难找到这样的方法。以数组 [1, 2, 3] 的全排列为例。
+     * 先写以 11 开头的全排列，它们是：[1, 2, 3], [1, 3, 2]，即 1 + [2, 3] 的全排列（注意：递归结构体现在这里）；
+     * 再写以 22 开头的全排列，它们是：[2, 1, 3], [2, 3, 1]，即 2 + [1, 3] 的全排列；
+     * 最后写以 33 开头的全排列，它们是：[3, 1, 2], [3, 2, 1]，即 3 + [1, 2] 的全排列。
+     * 总结搜索的方法：按顺序枚举每一位可能出现的情况，已经选择的数字在 当前 要选择的数字中不能出现。
+     * 按照这种策略搜索就能够做到 不重不漏。这样的思路，可以用一个树形结构表示。
+     * 看到这里的朋友，建议先尝试自己画出「全排列」问题的树形结构：resources/全排列.png
+     * 说明：
+     * 每一个结点表示了求解全排列问题的不同的阶段，这些阶段通过变量的「不同的值」体现，这些变量的不同的值，称之为「状态」；
+     * 使用深度优先遍历有「回头」的过程，在「回头」以后， 状态变量需要设置成为和先前一样 ，因此在回到上一层结点的过程中，
+     * 需要撤销上一次的选择，这个操作称之为「状态重置」；
+     * 深度优先遍历，借助系统栈空间，保存所需要的状态变量，在编码中只需要注意遍历到相应的结点的时候，
+     * 状态变量的值是正确的，具体的做法是：往下走一层的时候，path 变量在尾部追加，而往回走的时候，需要撤销上一次的选择，
+     * 也是在尾部操作，因此 path 变量是一个栈；
+     * 深度优先遍历通过「回溯」操作，实现了全局使用一份状态变量的效果。
+     * 使用编程的方法得到全排列，就是在这样的一个树形结构中完成 遍历，从树的根结点到叶子结点形成的路径就是其中一个全排列。
+     * <p>
+     * 设计状态变量
+     * 首先这棵树除了根结点和叶子结点以外，每一个结点做的事情其实是一样的，即：在已经选择了一些数的前提下，
+     * 在剩下的还没有选择的数中，依次选择一个数，这显然是一个 递归 结构；
+     * 递归的终止条件是： 一个排列中的数字已经选够了 ，因此我们需要一个变量来表示当前程序递归到第几层，
+     * 我们把这个变量叫做 depth，或者命名为 index ，表示当前要确定的是某个全排列中下标为 index 的那个数是多少；
+     * 布尔数组 used，初始化的时候都为 false 表示这些数还没有被选择，当我们选定一个数的时候，
+     * 就将这个数组的相应位置设置为 true ，这样在考虑下一个位置的时候，就能够以 O(1)O(1) 的时间复杂度判断这个数是否被选择过，
+     * 这是一种「以空间换时间」的思想。
+     * 这些变量称为「状态变量」，它们表示了在求解一个问题的时候所处的阶段。需要根据问题的场景设计合适的状态变量。
      */
     @Test
-    public void test202105292123(){
-        int[]arr={1,2,3};
+    public void test202105292123() {
+        int[] arr = {1, 2, 3};
         System.out.println(permute(arr));
     }
+
     public List<List<Integer>> permute(int[] nums) {
         int len = nums.length;
         // 使用一个动态数组保存所有可能的全排列
@@ -230,6 +260,141 @@ public class SearchCase {
                 path.remove(path.size() - 1);
             }
         }
+    }
+
+    /**
+     * 剑指 Offer 13. 机器人的运动范围
+     * 地上有一个m行n列的方格，从坐标 [0,0] 到坐标 [m-1,n-1] 。一个机器人从坐标 [0, 0] 的格子开始移动，
+     * 它每次可以向左、右、上、下移动一格（不能移动到方格外），也不能进入行坐标和列坐标的数位之和大于k的格子。
+     * 例如，当k为18时，机器人能够进入方格 [35, 37] ，因为3+5+3+7=18。但它不能进入方格 [35, 38]，因为3+5+3+8=19。
+     * 请问该机器人能够到达多少个格子？
+     * <p>
+     * 示例 1：
+     * 输入：m = 2, n = 3, k = 1
+     * 输出：3
+     * <p>
+     * 示例 2：
+     * 输入：m = 3, n = 1, k = 0
+     * 输出：1
+     * <p>
+     * 提示：
+     * 1 <= n,m <= 100
+     * 0 <= k<= 20
+     */
+    @Test
+    public void test202106011132() {
+//        System.out.println(calDigitSum(15));
+        System.out.println(movingCount(16, 8, 4));
+    }
+
+    public int movingCount(int m, int n, int k) {
+        int count = 1;
+        int[][] arr = new int[m][n];
+        arr[0][0] = 1;
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                if (calDigitSum(i) + calDigitSum(j) > k) {
+                    continue;
+                }
+
+                if (i > 0 && arr[i - 1][j] == 1) {
+
+                } else if (j > 0 && arr[i][j - 1] == 1) {
+
+                } else {
+                    continue;
+                }
+                arr[i][j] = 1;
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public int calDigitSum(int num) {
+        int res = 0;
+        while (num != 0) {
+            res += num % 10;
+            num /= 10;
+        }
+        return res;
+    }
+
+    @Test
+    public void test20210602() {
+        int[] arr = {1, 2, 3};
+    }
+
+    /**
+     *
+     */
+    @Test
+    public void test202106021217() {
+
+        System.out.println(solveNQueens(20));
+    }
+
+    public List<List<String>> solveNQueens(int n) {
+        List<List<String>> res = new ArrayList<>();
+        char[][] arr = new char[n][n];
+        for(int i=0;i<n;i++){
+            for(int j=0;j<n;j++){
+                arr[i][j]='.';
+            }
+        }
+        solveNQueens(arr,res,n,0);
+        return res;
+    }
+
+    public void solveNQueens(char[][] arr, List<List<String>> res, int n, int row) {
+        if (row == n) {
+            res.add(getOneResByArr(arr,n));
+            return;
+        }
+        for (int j = 0; j < n; j++) {
+            if(!isValidByQueenRule(arr,row,j,n)){
+                continue;
+            }
+            arr[row][j]='Q';
+            solveNQueens(arr,res,n,row+1);
+            arr[row][j]='.';
+        }
+    }
+
+    public List<String> getOneResByArr(char[][]arr,int n){
+        List<String>res=new ArrayList<>();
+        for(int i=0;i<n;i++){
+            StringBuilder sb=new StringBuilder();
+            for(int j=0;j<n;j++){
+                sb.append(arr[i][j]);
+            }
+            res.add(sb.toString());
+        }
+        return res;
+    }
+
+    public boolean isValidByQueenRule(char[][] arr,int row,int col,int n){
+        //col
+        for(int i=0;i<=row;i++){
+            if(arr[i][col]=='Q'){
+                return false;
+            }
+        }
+        //↖
+        for(int i=row-1,j=col-1;i>=0&&j>=0;i--,j--){
+            if(arr[i][j]=='Q'){
+                return false;
+            }
+        }
+
+        //↗
+        for(int i=row-1,j=col+1;i>=0&&j<n;i--,j++){
+            if(arr[i][j]=='Q'){
+                return false;
+            }
+        }
+
+        return true;
     }
 
 
