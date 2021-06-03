@@ -2,10 +2,7 @@ package com.hyj.algorithm.demo;
 
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * 搜索算法
@@ -263,6 +260,66 @@ public class SearchCase {
     }
 
     /**
+     * 47 全排列2
+     * 给定一个可包含重复数字的序列 nums ，按任意顺序 返回所有不重复的全排列。
+     *
+     * 示例 1：
+     * 输入：nums = [1,1,2]
+     * 输出：
+     * [[1,1,2],
+     *  [1,2,1],
+     *  [2,1,1]]
+     *
+     * 示例 2：
+     * 输入：nums = [1,2,3]
+     * 输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
+     *
+     * 分析：
+     * 在全排列的基础上，同一层级去重即可
+     * 同一层级去重-法1：每层新建一个map，对待选的元素进行判断
+     * 同一层级去重-法2：当前元素和上一个元素比较，上一个元素如果没有被选择：
+     * i>0&&nums[i]==nums[i-1]&&!visited[i-1]
+     */
+    @Test
+    public void test202106022034() {
+        int[] arr = {1, 2, 2};
+        System.out.println(permuteUnique(arr));
+    }
+
+    public List<List<Integer>> permuteUnique(int[] nums) {
+        List<List<Integer>> res = new ArrayList<>();
+        permuteWithRepeat(nums,res,new LinkedList<>(),new boolean[nums.length]);
+        return res;
+    }
+
+    public void permuteWithRepeat(int[] nums, List<List<Integer>> res, LinkedList<Integer> path,
+                                  boolean[] visited ){
+        if (path.size() == nums.length) {
+            res.add(new ArrayList<>(path));
+            return;
+        }
+//        Map<Integer, Integer> map=new HashMap<>();
+        for (int i = 0; i < nums.length; i++) {
+            //排除已经选择的元素和同一层级的重复元素
+            if (visited[i] || (i>0&&nums[i]==nums[i-1]&&!visited[i-1])/*map.get(nums[i])!=null*/) {
+                continue;
+            }
+            //同层级的元素列表存储
+//            map.put(nums[i],0);
+            //做出选择
+            visited[i] = true;
+            path.add(nums[i]);
+            //递归进入下一层
+            permuteWithRepeat(nums, res, path, visited);
+            //取消选择
+            visited[i] = false;
+            path.removeLast();
+
+        }
+
+    }
+
+    /**
      * 剑指 Offer 13. 机器人的运动范围
      * 地上有一个m行n列的方格，从坐标 [0,0] 到坐标 [m-1,n-1] 。一个机器人从坐标 [0, 0] 的格子开始移动，
      * 它每次可以向左、右、上、下移动一格（不能移动到方格外），也不能进入行坐标和列坐标的数位之和大于k的格子。
@@ -337,35 +394,35 @@ public class SearchCase {
     public List<List<String>> solveNQueens(int n) {
         List<List<String>> res = new ArrayList<>();
         char[][] arr = new char[n][n];
-        for(int i=0;i<n;i++){
-            for(int j=0;j<n;j++){
-                arr[i][j]='.';
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                arr[i][j] = '.';
             }
         }
-        solveNQueens(arr,res,n,0);
+        solveNQueens(arr, res, n, 0);
         return res;
     }
 
     public void solveNQueens(char[][] arr, List<List<String>> res, int n, int row) {
         if (row == n) {
-            res.add(getOneResByArr(arr,n));
+            res.add(getOneResByArr(arr, n));
             return;
         }
         for (int j = 0; j < n; j++) {
-            if(!isValidByQueenRule(arr,row,j,n)){
+            if (!isValidByQueenRule(arr, row, j, n)) {
                 continue;
             }
-            arr[row][j]='Q';
-            solveNQueens(arr,res,n,row+1);
-            arr[row][j]='.';
+            arr[row][j] = 'Q';
+            solveNQueens(arr, res, n, row + 1);
+            arr[row][j] = '.';
         }
     }
 
-    public List<String> getOneResByArr(char[][]arr,int n){
-        List<String>res=new ArrayList<>();
-        for(int i=0;i<n;i++){
-            StringBuilder sb=new StringBuilder();
-            for(int j=0;j<n;j++){
+    public List<String> getOneResByArr(char[][] arr, int n) {
+        List<String> res = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            StringBuilder sb = new StringBuilder();
+            for (int j = 0; j < n; j++) {
                 sb.append(arr[i][j]);
             }
             res.add(sb.toString());
@@ -373,23 +430,23 @@ public class SearchCase {
         return res;
     }
 
-    public boolean isValidByQueenRule(char[][] arr,int row,int col,int n){
+    public boolean isValidByQueenRule(char[][] arr, int row, int col, int n) {
         //col
-        for(int i=0;i<=row;i++){
-            if(arr[i][col]=='Q'){
+        for (int i = 0; i <= row; i++) {
+            if (arr[i][col] == 'Q') {
                 return false;
             }
         }
         //↖
-        for(int i=row-1,j=col-1;i>=0&&j>=0;i--,j--){
-            if(arr[i][j]=='Q'){
+        for (int i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--) {
+            if (arr[i][j] == 'Q') {
                 return false;
             }
         }
 
         //↗
-        for(int i=row-1,j=col+1;i>=0&&j<n;i--,j++){
-            if(arr[i][j]=='Q'){
+        for (int i = row - 1, j = col + 1; i >= 0 && j < n; i--, j++) {
+            if (arr[i][j] == 'Q') {
                 return false;
             }
         }
