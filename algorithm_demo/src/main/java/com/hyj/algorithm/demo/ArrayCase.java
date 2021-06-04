@@ -2,6 +2,10 @@ package com.hyj.algorithm.demo;
 
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 
 /**
  * 数组相关算法
@@ -230,8 +234,8 @@ public class ArrayCase {
      */
     @Test
     public void testScrewArr() {
-        int[][]arr=screwArr(5);
-        for(int i=0;i<arr.length;i++){
+        int[][] arr = screwArr(5);
+        for (int i = 0; i < arr.length; i++) {
             CommonUtil.printIntArray(arr[i]);
         }
     }
@@ -247,7 +251,7 @@ public class ArrayCase {
             return arr;
         }
         //x表示行坐标 y表示列坐标
-        int x , y;
+        int x, y;
         //每次循环的起始坐标
         int x0 = 0, y0 = 0;
 
@@ -258,8 +262,8 @@ public class ArrayCase {
         for (int loop = 0; loop < n / 2; loop++) {
             //loop表示轮数
             //更新起始位置
-            x=x0;
-            y=y0;
+            x = x0;
+            y = y0;
             //右
             for (; y < y0 + n - offset; y++) {
                 arr[x][y] = count++;
@@ -293,4 +297,79 @@ public class ArrayCase {
         return arr;
     }
 
+    /**
+     * 剑指 Offer 21. 调整数组顺序使奇数位于偶数前面
+     * 输入一个整数数组，实现一个函数来调整该数组中数字的顺序，使得所有奇数位于数组的前半部分，所有偶数位于数组的后半部分。
+     * 示例：
+     * 输入：nums =[1,2,3,4]
+     * 输出：[1,3,2,4]
+     * 注：[3,1,2,4] 也是正确的答案之一。
+     *
+     * 提示：
+     * 0 <= nums.length <= 50000
+     * 1 <= nums[i] <= 10000
+     *
+     */
+    @Test
+    public void test20210604() {
+        int[] arr = {1, 2, 3, 4, 5};
+        System.out.println(Arrays.toString(exchange2(arr)));
+    }
+
+    /**
+     * 快慢指针
+     * 快指针fast寻找奇数
+     * 慢指针low寻找偶数
+     * fast>low 进行交换元素
+     * @param nums
+     * @return
+     */
+    public int[] exchange(int[] nums) {
+        int low = 0;
+//        int fast=0;
+        for (int fast = 0; fast < nums.length; fast++) {
+            while (low < nums.length && nums[low] % 2 != 0) {
+                low++;
+            }
+            if (low < fast && nums[fast] % 2 == 1) {
+                int tmp = nums[fast];
+                nums[fast] = nums[low];
+                nums[low] = tmp;
+            }
+        }
+
+        return nums;
+    }
+
+    /**
+     * 左右指针
+     * left寻找偶数 right寻找奇数
+     * left<right 交换元素位置
+     * @param nums
+     * @return
+     */
+    public int[] exchange2(int[] nums) {
+        int l = 0;
+        int r = nums.length - 1;
+        while (l < r) {
+            //找偶数
+            if (nums[l] % 2 != 0) {
+                l++;
+                continue;
+            }
+            //找奇数
+            if (nums[r] % 2 == 0) {
+                r--;
+                continue;
+            }
+            int tmp = nums[l];
+            nums[l] = nums[r];
+            nums[r] = tmp;
+            l++;
+            r--;
+
+        }
+
+        return nums;
+    }
 }
