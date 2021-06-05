@@ -24,7 +24,7 @@
     </properties>
 
     <dependencies>
-<!--        lgbm-->
+        <!--        lgbm-->
         <dependency>
             <groupId>com.microsoft.ml.spark</groupId>
             <artifactId>mmlspark_2.11</artifactId>
@@ -404,6 +404,11 @@
             <groupId>com.hyj.demo</groupId>
             <artifactId>algorithm_demo</artifactId>
             <version>1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tika</groupId>
+            <artifactId>tika-parsers</artifactId>
+            <version>1.17</version>
         </dependency>
 
     </dependencies>
