@@ -3,9 +3,20 @@ package com.hyj.algorithm.demo;
 import org.junit.Test;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 搜索算法
+ * <p>
+ * 回溯算法解题框架：
+ * {for 选择 in 选择列表:
+ * # 做选择
+ * 将该选择从选择列表移除
+ * 路径.add(选择)
+ * backtrack(路径, 选择列表)
+ * # 撤销选择
+ * 路径.remove(选择)
+ * 将该选择再加入选择列表}
  */
 public class SearchCase {
     /**
@@ -262,18 +273,18 @@ public class SearchCase {
     /**
      * 47 全排列2
      * 给定一个可包含重复数字的序列 nums ，按任意顺序 返回所有不重复的全排列。
-     *
+     * <p>
      * 示例 1：
      * 输入：nums = [1,1,2]
      * 输出：
      * [[1,1,2],
-     *  [1,2,1],
-     *  [2,1,1]]
-     *
+     * [1,2,1],
+     * [2,1,1]]
+     * <p>
      * 示例 2：
      * 输入：nums = [1,2,3]
      * 输出：[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
-     *
+     * <p>
      * 分析：
      * 在全排列的基础上，同一层级去重即可
      * 同一层级去重-法1：每层新建一个map，对待选的元素进行判断
@@ -288,12 +299,12 @@ public class SearchCase {
 
     public List<List<Integer>> permuteUnique(int[] nums) {
         List<List<Integer>> res = new ArrayList<>();
-        permuteWithRepeat(nums,res,new LinkedList<>(),new boolean[nums.length]);
+        permuteWithRepeat(nums, res, new LinkedList<>(), new boolean[nums.length]);
         return res;
     }
 
     public void permuteWithRepeat(int[] nums, List<List<Integer>> res, LinkedList<Integer> path,
-                                  boolean[] visited ){
+                                  boolean[] visited) {
         if (path.size() == nums.length) {
             res.add(new ArrayList<>(path));
             return;
@@ -301,7 +312,7 @@ public class SearchCase {
 //        Map<Integer, Integer> map=new HashMap<>();
         for (int i = 0; i < nums.length; i++) {
             //排除已经选择的元素和同一层级的重复元素
-            if (visited[i] || (i>0&&nums[i]==nums[i-1]&&!visited[i-1])/*map.get(nums[i])!=null*/) {
+            if (visited[i] || (i > 0 && nums[i] == nums[i - 1] && !visited[i - 1])/*map.get(nums[i])!=null*/) {
                 continue;
             }
             //同层级的元素列表存储
@@ -377,13 +388,20 @@ public class SearchCase {
         return res;
     }
 
-    @Test
-    public void test20210602() {
-        int[] arr = {1, 2, 3};
-    }
 
     /**
-     *
+     * 51. N 皇后
+     * n皇后问题 研究的是如何将 n个皇后放置在 n×n 的棋盘上，并且使皇后彼此之间不能相互攻击。
+     * <p>
+     * 给你一个整数 n ，返回所有不同的n皇后问题 的解决方案。
+     * 每一种解法包含一个不同的n 皇后问题 的棋子放置方案，该方案中 'Q' 和 '.' 分别代表了皇后和空位。
+     * <p>
+     * 分析：
+     * n个皇后一定是在不同的行，即棋盘的每行都有且只有一个皇后Q
+     * 遍历每行的每个格子arr[row][j]，使得该格子满足当前棋盘中的所有皇后不相互攻击
+     * （即该格子正上方，左上方和右上方没有Q，由于下一行还没有放置皇后，故不用考虑下方），如果不满足则跳过，
+     * 如果满足则令arr[row][j]='Q'，继续在下一行合适的位置放置皇后
+     * 直到最后一行row==n
      */
     @Test
     public void test202106021217() {
@@ -431,7 +449,7 @@ public class SearchCase {
     }
 
     public boolean isValidByQueenRule(char[][] arr, int row, int col, int n) {
-        //col
+        //↑ col
         for (int i = 0; i <= row; i++) {
             if (arr[i][col] == 'Q') {
                 return false;
@@ -454,5 +472,64 @@ public class SearchCase {
         return true;
     }
 
+    /**
+     * 77. 组合
+     * 给定两个整数 n 和 k，返回 1 ... n 中所有可能的 k 个数的组合。
+     * <p>
+     * 示例:
+     * 输入:n = 4, k = 2
+     * 输出:
+     * [
+     * [2,4],
+     * [3,4],
+     * [2,3],
+     * [1,2],
+     * [1,3],
+     * [1,4],
+     * ]
+     */
+    @Test
+    public void test202106051647() {
+        System.out.println(combine(1,1));
+    }
+
+    public List<List<Integer>> combine(int n, int k) {
+        List<List<Integer>> res = new ArrayList<>();
+        if (k > n) {
+            return res;
+        }
+        int[] arr = new int[n];
+        for (int i = 0; i < n; i++) {
+            arr[i] = i + 1;
+        }
+        if (k == n) {
+            System.out.println(Arrays.stream(arr).boxed().collect(Collectors.toList()));
+            res.add(Arrays.stream(arr).boxed().collect(Collectors.toList()));
+            return res;
+        }
+        combine(k,new LinkedList<>(),res,arr,0,n-1);
+        System.out.println(res.size());
+
+        return res;
+    }
+
+    public void combine(int k,LinkedList<Integer>path,List<List<Integer>> res,
+                        int[]arr,int begin,int end) {
+        if(k==path.size()){
+            res.add(new ArrayList<>(path));
+//            path.clear();
+            return;
+        }
+//        if(end-begin+1<k){
+//            return;
+//        }
+        for(int i=begin;i<=end;i++){
+            path.add(arr[i]);
+            //下一层
+            combine(k,path,res,arr,i+1,end);
+            path.removeLast();
+        }
+
+    }
 
 }
