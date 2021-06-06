@@ -490,7 +490,7 @@ public class SearchCase {
      */
     @Test
     public void test202106051647() {
-        System.out.println(combine(1,1));
+        System.out.println(combine(1, 1));
     }
 
     public List<List<Integer>> combine(int n, int k) {
@@ -507,22 +507,22 @@ public class SearchCase {
             res.add(Arrays.stream(arr).boxed().collect(Collectors.toList()));
             return res;
         }
-        combine(k,new LinkedList<>(),res,arr,0,n-1);
+        combine(k, new LinkedList<>(), res, arr, 0, n - 1);
         System.out.println(res.size());
 
         return res;
     }
 
-    public void combine(int k,LinkedList<Integer>path,List<List<Integer>> res,
-                        int[]arr,int begin,int end) {
-        if(k==path.size()){
+    public void combine(int k, LinkedList<Integer> path, List<List<Integer>> res,
+                        int[] arr, int begin, int end) {
+        if (k == path.size()) {
             res.add(new ArrayList<>(path));
             return;
         }
-        for(int i=begin;i<=end;i++){
+        for (int i = begin; i <= end; i++) {
             path.add(arr[i]);
             //下一层
-            combine(k,path,res,arr,i+1,end);
+            combine(k, path, res, arr, i + 1, end);
             path.removeLast();
         }
 
@@ -533,12 +533,12 @@ public class SearchCase {
      * 示例: 输入:{1,2,2,4}, k = 2 输出: [ [1,2], [1,4], [2,2], [2,4]]
      */
     @Test
-    public void test202106060902(){
-        int[]arr={1,2,2,3,3,4};
-        System.out.println(combineWithRepeat(arr,2));
+    public void test202106060902() {
+        int[] arr = {1, 2, 2, 3, 3, 4};
+        System.out.println(combineWithRepeat(arr, 2));
     }
 
-    public List<List<Integer>> combineWithRepeat(int []arr, int k) {
+    public List<List<Integer>> combineWithRepeat(int[] arr, int k) {
         List<List<Integer>> res = new ArrayList<>();
         if (k > arr.length) {
             return res;
@@ -548,30 +548,111 @@ public class SearchCase {
             return res;
         }
         Arrays.sort(arr);
-        combineWithRepeat(k,new LinkedList<>(),res,arr,0,arr.length-1,new boolean[arr.length]);
+        combineWithRepeat(k, new LinkedList<>(), res, arr, 0, arr.length - 1, new boolean[arr.length]);
         System.out.println(res.size());
 
         return res;
     }
 
-    public void combineWithRepeat(int k,LinkedList<Integer>path,List<List<Integer>> res,
-                        int[]arr,int begin,int end,boolean[]visited) {
-        if(k==path.size()){
+    public void combineWithRepeat(int k, LinkedList<Integer> path, List<List<Integer>> res,
+                                  int[] arr, int begin, int end, boolean[] visited) {
+        if (k == path.size()) {
             res.add(new ArrayList<>(path));
             return;
         }
-        for(int i=begin;i<=end;i++){
-            if(visited[i]||(i>0&&!visited[i-1]&&arr[i]==arr[i-1])){
+        for (int i = begin; i <= end; i++) {
+            if (visited[i] || (i > 0 && !visited[i - 1] && arr[i] == arr[i - 1])) {
                 continue;
             }
             path.add(arr[i]);
-            visited[i]=true;
+            visited[i] = true;
             //下一层
-            combineWithRepeat(k,path,res,arr,i+1,end,visited);
+            combineWithRepeat(k, path, res, arr, i + 1, end, visited);
             path.removeLast();
-            visited[i]=false;
+            visited[i] = false;
         }
 
     }
+
+    /**
+     * 39. 组合总和
+     * 给定一个无重复元素的数组candidates和一个目标数target，找出candidates中所有可以使数字和为target的组合。
+     * candidates中的数字可以无限制重复被选取。
+     *
+     * 说明：
+     * 所有数字（包括target）都是正整数。
+     * 解集不能包含重复的组合。
+     * 示例1：
+     * 输入：candidates = [2,3,6,7], target = 7,
+     * 所求解集为：
+     * [
+     *   [7],
+     *   [2,2,3]
+     * ]
+     *
+     * 示例2：
+     * 输入：candidates = [2,3,5], target = 8,
+     * 所求解集为：
+     * [
+     *  [2,2,2,2],
+     *  [2,3,3],
+     *  [3,5]
+     * ]
+     *
+     * 提示：
+     * 1 <= candidates.length <= 30
+     * 1 <= candidates[i] <= 200
+     * candidate 中的每个元素都是独一无二的。
+     * 1 <= target <= 500
+     *
+     */
+    @Test
+    public void test202106061203() {
+        int[]arr={2,3,5};
+        combinationSum(arr,8);
+    }
+
+    public List<List<Integer>> combinationSum(int[] candidates, int target) {
+        List<List<Integer>> res = new ArrayList<>();
+        combinationSum(res,candidates,target,0,candidates.length-1,new LinkedList<>());
+//        System.out.println(res);
+        return res;
+    }
+
+    public void combinationSum(List<List<Integer>> res, int[] arr, int target, int index, int end,
+                               LinkedList<Integer> path) {
+        if (target == 0) {
+            res.add(new ArrayList<>(path));
+            return;
+        }else if(target<0){
+            return;
+        }
+        if (index > end) {
+            return;
+        }
+        for (int i = 0; i <= target / arr[index]; i++) {
+            //选择该元素i次
+            target=addOrRemove(true,arr[index],i,path,target);
+            //进入下一层
+            combinationSum(res,arr,target,index+1,end,path);
+
+            //删除该元素i次
+            target=addOrRemove(false,arr[index],i,path,target);
+        }
+    }
+
+    public int addOrRemove(boolean isAdd,int num,int times,LinkedList<Integer>path,int target){
+        for(int i=0;i<times;i++){
+            if(isAdd){
+                path.add(num);
+                target-=num;
+            }else {
+                path.removeLast();
+                target+=num;
+            }
+        }
+        return target;
+    }
+
 
 }
