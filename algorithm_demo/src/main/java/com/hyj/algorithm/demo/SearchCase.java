@@ -517,17 +517,59 @@ public class SearchCase {
                         int[]arr,int begin,int end) {
         if(k==path.size()){
             res.add(new ArrayList<>(path));
-//            path.clear();
             return;
         }
-//        if(end-begin+1<k){
-//            return;
-//        }
         for(int i=begin;i<=end;i++){
             path.add(arr[i]);
             //下一层
             combine(k,path,res,arr,i+1,end);
             path.removeLast();
+        }
+
+    }
+
+    /**
+     * 组合2 给定一个整数数组和 整数k，返回 数组中所有可能的 k 个数的组合。
+     * 示例: 输入:{1,2,2,4}, k = 2 输出: [ [1,2], [1,4], [2,2], [2,4]]
+     */
+    @Test
+    public void test202106060902(){
+        int[]arr={1,2,2,3,3,4};
+        System.out.println(combineWithRepeat(arr,2));
+    }
+
+    public List<List<Integer>> combineWithRepeat(int []arr, int k) {
+        List<List<Integer>> res = new ArrayList<>();
+        if (k > arr.length) {
+            return res;
+        }
+        if (k == arr.length) {
+            res.add(Arrays.stream(arr).boxed().collect(Collectors.toList()));
+            return res;
+        }
+        Arrays.sort(arr);
+        combineWithRepeat(k,new LinkedList<>(),res,arr,0,arr.length-1,new boolean[arr.length]);
+        System.out.println(res.size());
+
+        return res;
+    }
+
+    public void combineWithRepeat(int k,LinkedList<Integer>path,List<List<Integer>> res,
+                        int[]arr,int begin,int end,boolean[]visited) {
+        if(k==path.size()){
+            res.add(new ArrayList<>(path));
+            return;
+        }
+        for(int i=begin;i<=end;i++){
+            if(visited[i]||(i>0&&!visited[i-1]&&arr[i]==arr[i-1])){
+                continue;
+            }
+            path.add(arr[i]);
+            visited[i]=true;
+            //下一层
+            combineWithRepeat(k,path,res,arr,i+1,end,visited);
+            path.removeLast();
+            visited[i]=false;
         }
 
     }
