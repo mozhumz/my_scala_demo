@@ -14,17 +14,11 @@ public class LinkedListCase {
         int val;
         ListNode next;
 
-        ListNode() {
-        }
 
         ListNode(int val) {
             this.val = val;
         }
 
-        ListNode(int val, ListNode next) {
-            this.val = val;
-            this.next = next;
-        }
     }
 
     /**
@@ -85,42 +79,103 @@ public class LinkedListCase {
      * 给定单向链表的头指针和一个要删除的节点的值，定义一个函数删除该节点。
      * 返回删除后的链表的头节点
      * 示例 1:
-     *
+     * <p>
      * 输入: head = [4,5,1,9], val = 5
      * 输出: [4,1,9]
      * 解释: 给定你链表中值为5的第二个节点，那么在调用了你的函数之后，该链表应变为 4 -> 1 -> 9.
-     *
+     * <p>
      * 示例 2:
      * 输入: head = [4,5,1,9], val = 1
      * 输出: [4,5,9]
      * 解释: 给定你链表中值为1的第三个节点，那么在调用了你的函数之后，该链表应变为 4 -> 5 -> 9.
-     *
+     * <p>
      * 说明：
      * 题目保证链表中节点的值互不相同
      */
     @Test
-    public void test20210601(){
+    public void test20210601() {
 
     }
 
     public ListNode deleteNode(ListNode head, int val) {
-        if(head==null){
+        if (head == null) {
             return null;
         }
-        if(head.val==val){
+        if (head.val == val) {
             return head.next;
         }
-        ListNode cur=head;
-        while (cur.next!=null){
-            if(cur.next.val==val){
-                cur.next=cur.next.next;
+        ListNode cur = head;
+        while (cur.next != null) {
+            if (cur.next.val == val) {
+                cur.next = cur.next.next;
                 return head;
             }
-            cur=cur.next;
+            cur = cur.next;
         }
 
         return head;
     }
+
+
+    /**
+     * 剑指 Offer 22. 链表中倒数第k个节点
+     * 输入一个链表，输出该链表中倒数第k个节点。为了符合大多数人的习惯，本题从1开始计数，即链表的尾节点是倒数第1个节点。
+     * <p>
+     * 例如，一个链表有 6 个节点，从头节点开始，它们的值依次是 1、2、3、4、5、6。这个链表的倒数第 3 个节点是值为 4 的节点。
+     * 示例：
+     * 给定一个链表: 1->2->3->4->5, 和 k = 2.
+     * 返回链表 4->5
+     * <p>
+     * 分析：
+     * 初始化： 前指针 former 、后指针 latter ，双指针都指向头节点 head 。
+     * 构建双指针距离： 前指针 former 先向前走 k 步（结束后，双指针 former 和 latter 间相距 k 步）。
+     * 双指针共同移动： 循环中，双指针 former 和 latter 每轮都向前走一步，直至 former 走过链表 尾节点 时跳出
+     * （跳出后， latter 与尾节点距离为 k-1，即 latter 指向倒数第 k 个节点）。
+     * 返回值： 返回 latter 即可
+     */
+    @Test
+    public void test202106201444() {
+
+    }
+
+    public ListNode getKthFromEnd(ListNode head, int k) {
+        if (k <= 0) {
+            return null;
+        }
+        ListNode former = head, latter = head;
+        //前指针 former 先向前走 k 步
+        for (int i = 0; i < k; i++) {
+            former = former.next;
+            //k>size的情况
+            if(i<k-1&&former==null){
+                return null;
+            }
+        }
+
+        //双指针共同移动
+        while (former != null) {
+            former = former.next;
+            latter = latter.next;
+        }
+        return latter;
+    }
+
+    public ListNode getKthFromEnd2(ListNode head, int k) {
+        if (k <= 0) {
+            return null;
+        }
+        List<ListNode> list = new ArrayList<>();
+        while (head != null) {
+            list.add(head);
+            head = head.next;
+        }
+        if (k > list.size()) {
+            return null;
+        }
+        return list.get(list.size() - k);
+    }
+
+
 }
 
 
