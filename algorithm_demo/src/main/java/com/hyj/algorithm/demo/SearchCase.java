@@ -288,7 +288,7 @@ public class SearchCase {
      * 分析：
      * 在全排列的基础上，同一层级去重即可
      * 同一层级去重-法1：每层新建一个map，对待选的元素进行判断
-     * 同一层级去重-法2：当前元素和上一个元素比较，上一个元素如果没有被选择：
+     * 同一层级去重-法2：对数组排序，当前元素和上一个元素比较，上一个元素如果没有被选择：
      * i>0&&nums[i]==nums[i-1]&&!visited[i-1]
      */
     @Test
@@ -487,6 +487,15 @@ public class SearchCase {
      * [1,3],
      * [1,4],
      * ]
+     * <p>
+     * 分析：
+     * 使用树形结构的递归，每一层level可选择的元素个数为k,k-1,k-2,...,1,
+     * 可选择的数据范围为[begin,end],begin从0开始，end=arr.len
+     * 递归过程：
+     * 1 获取本层的元素范围，遍历该范围，使用path选取范围中的一个元素path.add(arr[index])
+     * 2 缩小范围(index+1)，进入下一层
+     * 3 停止条件path.size==k
+     * 4 取消选取 path.remove(arr[index])
      */
     @Test
     public void test202106051647() {
@@ -529,8 +538,11 @@ public class SearchCase {
     }
 
     /**
-     * 组合2 给定一个整数数组和 整数k，返回 数组中所有可能的 k 个数的组合。
+     * 组合2 给定一个有重复元素的数组和整数k，返回 数组中所有可能的 k 个数的组合。
      * 示例: 输入:{1,2,2,4}, k = 2 输出: [ [1,2], [1,4], [2,2], [2,4]]
+     * <p>
+     * 分析：
+     * 在组合算法的基础上，每层去重：使用boolean[] visited记录每层的元素是否被选取
      */
     @Test
     public void test202106060902() {
@@ -578,7 +590,7 @@ public class SearchCase {
      * 39. 组合总和
      * 给定一个无重复元素的数组candidates和一个目标数target，找出candidates中所有可以使数字和为target的组合。
      * candidates中的数字可以无限制重复被选取。
-     *
+     * <p>
      * 说明：
      * 所有数字（包括target）都是正整数。
      * 解集不能包含重复的组合。
@@ -586,35 +598,43 @@ public class SearchCase {
      * 输入：candidates = [2,3,6,7], target = 7,
      * 所求解集为：
      * [
-     *   [7],
-     *   [2,2,3]
+     * [7],
+     * [2,2,3]
      * ]
-     *
+     * <p>
      * 示例2：
      * 输入：candidates = [2,3,5], target = 8,
      * 所求解集为：
      * [
-     *  [2,2,2,2],
-     *  [2,3,3],
-     *  [3,5]
+     * [2,2,2,2],
+     * [2,3,3],
+     * [3,5]
      * ]
-     *
+     * <p>
      * 提示：
      * 1 <= candidates.length <= 30
      * 1 <= candidates[i] <= 200
      * candidate 中的每个元素都是独一无二的。
      * 1 <= target <= 500
-     *
+     * <p>
+     * 分析：
+     * 由于数组每个数字可以重复使用，故组合成target的方式可以表示为
+     * x0*arr[0] + x1*arr[1] + x2*arr[2] + ... + xi*arr[i] = target ,其中xi是>=0的整数,表示数组中每个数字出现的次数
+     * 根据上述公式，可设计算法流程：
+     * 1 做出选择：每一层为arr[i]，选取的次数xi，xi->[0,target/arr[i]], 执行xi次：path.add(arr[i])和target-=arr[i]
+     * 2 i+1,进入下一层
+     * 3 停止条件 target==0 || target<0 || index > end
+     * 4 取消选择：执行xi次：path.remove(arr[i])和target+=arr[i]
      */
     @Test
     public void test202106061203() {
-        int[]arr={2,3,5};
-        combinationSum(arr,8);
+        int[] arr = {2, 3, 5};
+        combinationSum(arr, 8);
     }
 
     public List<List<Integer>> combinationSum(int[] candidates, int target) {
         List<List<Integer>> res = new ArrayList<>();
-        combinationSum(res,candidates,target,0,candidates.length-1,new LinkedList<>());
+        combinationSum(res, candidates, target, 0, candidates.length - 1, new LinkedList<>());
 //        System.out.println(res);
         return res;
     }
@@ -624,7 +644,7 @@ public class SearchCase {
         if (target == 0) {
             res.add(new ArrayList<>(path));
             return;
-        }else if(target<0){
+        } else if (target < 0) {
             return;
         }
         if (index > end) {
@@ -632,26 +652,159 @@ public class SearchCase {
         }
         for (int i = 0; i <= target / arr[index]; i++) {
             //选择该元素i次
-            target=addOrRemove(true,arr[index],i,path,target);
+            target = addOrRemove(true, arr[index], i, path, target);
             //进入下一层
-            combinationSum(res,arr,target,index+1,end,path);
+            combinationSum(res, arr, target, index + 1, end, path);
 
             //删除该元素i次
-            target=addOrRemove(false,arr[index],i,path,target);
+            target = addOrRemove(false, arr[index], i, path, target);
         }
     }
 
-    public int addOrRemove(boolean isAdd,int num,int times,LinkedList<Integer>path,int target){
-        for(int i=0;i<times;i++){
-            if(isAdd){
+    public int addOrRemove(boolean isAdd, int num, int times, LinkedList<Integer> path, int target) {
+        for (int i = 0; i < times; i++) {
+            if (isAdd) {
                 path.add(num);
-                target-=num;
-            }else {
+                target -= num;
+            } else {
                 path.removeLast();
-                target+=num;
+                target += num;
             }
         }
         return target;
+    }
+
+    /**
+     * 40 组合总和2
+     * 给定一个数组candidates和一个目标数target，找出candidates中所有可以使数字和为target的组合。
+     * candidates中的每个数字在每个组合中只能使用一次。
+     * 说明：
+     * 所有数字（包括目标数）都是正整数。
+     * 解集不能包含重复的组合。
+     * <p>
+     * 示例1:
+     * 输入: candidates =[10,1,2,7,6,1,5], target =8,
+     * 所求解集为:
+     * [
+     * [1, 7],
+     * [1, 2, 5],
+     * [2, 6],
+     * [1, 1, 6]
+     * ]
+     * 示例2:
+     * 输入: candidates =[2,5,2,1,2], target =5,
+     * 所求解集为:
+     * [
+     * [1,2,2],
+     * [5]
+     * ]
+     * <p>
+     * 分析：
+     * 和上题不同，由于每个数字只能使用一次，公式
+     * x0*arr[0] + x1*arr[1] + x2*arr[2] + ... + xi*arr[i] = target ,其中xi是>=0的整数,表示数组中每个数字出现的次数
+     * 每个元素可选择的次数xi->[0,1]，即转换为遍历每层的可选择列表
+     * 1 做出选择：每层的可选择列表为[index,end] path.add(arr[index]) target -= arr[index] 同一层级需要去重
+     * 2 index+1,进入下一层
+     * 3 停止条件 target==0 || target<0 || index > end
+     * 4 取消选择：path.remove(arr[index]) target += arr[index]
+     */
+    @Test
+    public void test202106091409() {
+        int[] arr = {2, 5, 2, 1, 2};
+        combinationSum2(arr, 5);
+    }
+
+    public List<List<Integer>> combinationSum2(int[] candidates, int target) {
+        List<List<Integer>> res = new ArrayList<>();
+        Arrays.sort(candidates);
+        combinationSum2(res, new LinkedList<>(), candidates, 0, candidates.length - 1, target);
+//        System.out.println(res);
+        return res;
+    }
+
+    public static void combinationSum2(List<List<Integer>> res, LinkedList<Integer> path,
+                                       int[] arr, int index, int end, int target) {
+        if (target < 0) {
+            return;
+        }
+        if (target == 0) {
+            res.add(new ArrayList<>(path));
+        }
+        for (int i = index; i <= end; i++) {
+//            if (visited[i] || (i > 0 && !visited[i - 1] && arr[i] == arr[i - 1])) {
+//                continue;
+//            }
+            //数组的值是递增的 跳出循环
+            if (arr[i] > target) {
+                break;
+            }
+            if ((i > index && arr[i] == arr[i - 1])) {
+                continue;
+            }
+            path.add(arr[i]);
+            target -= arr[i];
+            combinationSum2(res, path, arr, i + 1, end, target);
+            path.removeLast();
+            target += arr[i];
+
+        }
+
+    }
+
+    /**
+     * 216. 组合总和3
+     * 找出所有相加之和为n 的k个数的组合。组合中只允许含有 1 -9 的正整数，并且每种组合中不存在重复的数字。
+     * 说明：
+     * 所有数字都是正整数。
+     * 解集不能包含重复的组合。
+     * <p>
+     * 示例 1:
+     * 输入: k = 3, n = 7
+     * 输出: [[1,2,4]]
+     * 示例 2:
+     * 输入: k = 3, n = 9
+     * 输出: [[1,2,6], [1,3,5], [2,3,4]]
+     * <p>
+     * 分析：
+     * 构造不重复的数组arr
+     * 1 做出选择：每层的可选择列表为[index,end] path.add(arr[i]) n-=arr[i]
+     * 2 index+1,进入下一层
+     * 3 停止条件：n==0
+     * 4 取消选择：path.remove(arr[i]) n+=arr[i]
+     */
+    @Test
+    public void test202106091622() {
+        combinationSum3(3,9);
+    }
+
+    public List<List<Integer>> combinationSum3(int k, int n) {
+        List<List<Integer>> res = new ArrayList<>();
+        int[]arr=new int[9];
+        for(int i=0;i<9;i++){
+            arr[i]=i+1;
+        }
+        combinationSum3(res,new LinkedList<>(),arr,n,0,arr.length-1,k);
+//        System.out.println(res);
+        return res;
+    }
+
+    public void combinationSum3(List<List<Integer>> res, LinkedList<Integer> path, int[] arr, int n,
+                                int index, int end,int k) {
+        if (n == 0) {
+            if (path.size()==k)
+            res.add(new ArrayList<>(path));
+            return;
+        }
+        for (int i = index; i <= end; i++) {
+            if (arr[i] > n) {
+                break;
+            }
+            path.add(arr[i]);
+            n -= arr[i];
+            combinationSum3(res, path, arr, n, i + 1, end,k);
+            path.removeLast();
+            n += arr[i];
+        }
     }
 
 
