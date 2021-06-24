@@ -3,7 +3,6 @@ package com.hyj.algorithm.demo;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -19,6 +18,17 @@ public class LinkedListCase {
             this.val = val;
         }
 
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(val);
+            ListNode tmp = next;
+            while (tmp != null) {
+                sb.append("->").append(tmp.val);
+                tmp = tmp.next;
+            }
+            return sb.toString();
+        }
     }
 
     /**
@@ -147,7 +157,7 @@ public class LinkedListCase {
         for (int i = 0; i < k; i++) {
             former = former.next;
             //k>size的情况
-            if(i<k-1&&former==null){
+            if (i < k - 1 && former == null) {
                 return null;
             }
         }
@@ -173,6 +183,79 @@ public class LinkedListCase {
             return null;
         }
         return list.get(list.size() - k);
+    }
+
+    /**
+     * 剑指 Offer 24. 反转链表
+     * 定义一个函数，输入一个链表的头节点，反转该链表并输出反转后链表的头节点。
+     * 示例:
+     * 输入: 1->2->3->4->5->NULL
+     * 输出: 5->4->3->2->1->NULL
+     *
+     * 分析：
+     * 在遍历链表时，将当前节点的 next 指针改为指向前一个节点。
+     * 由于节点没有引用其前一个节点，因此必须事先存储其前一个节点。
+     * 在更改引用之前，还需要存储后一个节点。
+     * 最后返回新的头引用
+     *
+     */
+    @Test
+    public void test202106241217() {
+        ListNode head = buildNode(5);
+        System.out.println(head);
+        System.out.println(reverseList2(head));
+    }
+
+    public ListNode reverseList(ListNode head) {
+        if (head == null) {
+            return null;
+        }
+        ListNode cur = head;
+        ListNode pre = null;
+        while (cur != null) {
+            ListNode next = cur.next;
+            cur.next = pre;
+            pre = cur;
+            cur = next;
+        }
+        return pre;
+    }
+
+    public ListNode reverseList2(ListNode head) {
+        if (head == null) {
+            return null;
+        }
+        List<Integer> list = new ArrayList<>();
+        while (head != null) {
+            list.add(head.val);
+            head = head.next;
+        }
+        ListNode res = null;
+        if (!list.isEmpty()) {
+            res = new ListNode(list.get(list.size() - 1));
+            ListNode tmp = res;
+            for (int i = list.size() - 2; i >= 0; i--) {
+                tmp.next = new ListNode(list.get(i));
+                tmp = tmp.next;
+
+            }
+        }
+        return res;
+    }
+
+    public ListNode buildNode(int n) {
+        ListNode head = null;
+        if (n < 1) {
+            return head;
+        }
+        head = new ListNode(1);
+        ListNode tmp = head;
+        for (int i = 2; i <= n; i++) {
+            tmp.next = new ListNode(i);
+            tmp = tmp.next;
+        }
+
+        return head;
     }
 
 
