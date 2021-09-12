@@ -71,4 +71,29 @@ public class StrTest {
             xMap.put(ch,++c);
         }
     }
+
+    /**
+     *
+     */
+    @Test
+    public void test202108150950(){
+        System.out.println(lengthOfLastWord("   fly me   to   the moon  "));
+    }
+
+    public int lengthOfLastWord(String s) {
+        int len=s.length();
+        int res=0;
+        boolean flag=false;
+        for(int i=len-1;i>=0;i--){
+            if(s.charAt(i)!=' '){
+                res++;
+                if(!flag){
+                    flag=true;
+                }
+            }else if(flag){
+                break;
+            }
+        }
+        return res;
+    }
 }
