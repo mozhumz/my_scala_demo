@@ -70,9 +70,14 @@ public class TreeTest {
     @Test
     public void testBuildTree() {
         Integer[] arr = {3, 9, 20, null, null, 15, 7};
+        TreeNode treeNode = getTreeNode(arr);
+        printLevelTreeNode(treeNode);
+    }
+
+    private  TreeNode getTreeNode(Integer[] arr) {
         TreeNode treeNode = new TreeNode(arr[0]);
         build(arr, treeNode, 1);
-        printLevelTreeNode(treeNode);
+        return treeNode;
     }
 
     public void printLevelTreeNode(TreeNode root) {
@@ -95,8 +100,8 @@ public class TreeTest {
 
     @Test
     public void build() {
-        Integer[] a = {1,2,3,4,5,6,7};
-        int i=1;
+        Integer[] a = {1, 2, 3, 4, 5, 6, 7};
+        int i = 1;
         TreeNode root = new TreeNode(a[0]);  // 根节点
         TreeNode current = null;
         Integer value = null;
@@ -104,18 +109,18 @@ public class TreeTest {
         //层序创建二叉树
         LinkedList<TreeNode> queue = new LinkedList<TreeNode>();
         queue.offer(root);
-        while(i<a.length) {
+        while (i < a.length) {
             current = queue.poll();//从链表中移除并获取第一个节点
             value = a[i++];
-            if(value!=null) {
-                TreeNode left =new TreeNode(value);
-                current.left=(left);//创建当前节点的左孩子
+            if (value != null) {
+                TreeNode left = new TreeNode(value);
+                current.left = (left);//创建当前节点的左孩子
                 queue.offer(left); // 在链表尾部 左孩子入队
             }
-            value=a[i++];
-            if(value!=null) {
-                TreeNode right =new TreeNode(value);
-                current.right=(right);//创建当前节点的右孩子
+            value = a[i++];
+            if (value != null) {
+                TreeNode right = new TreeNode(value);
+                current.right = (right);//创建当前节点的右孩子
                 queue.offer(right);// 在链表尾部 右孩子入队
             }
 
@@ -126,7 +131,7 @@ public class TreeTest {
 
     }
 
-    public int build(Integer[] arr, TreeNode root, int i) {
+    public  int build(Integer[] arr, TreeNode root, int i) {
         if (root == null) {
             return i;
         }
@@ -155,8 +160,7 @@ public class TreeTest {
     @Test
     public void testLevelOrder() {
         Integer[] arr = {1, 2, 3, 4, 5, 6, 7};
-        TreeNode treeNode = new TreeNode(arr[0]);
-        build(arr, treeNode, 1);
+        TreeNode treeNode = getTreeNode(arr);
         List<List<Integer>> lists = levelOrder(treeNode);
         System.out.println(lists);
     }
@@ -225,4 +229,74 @@ public class TreeTest {
 
         return list;
     }
+
+    /**
+     * LCP 34. 二叉树染色
+     * <p>
+     * 小扣有一个根结点为 root 的二叉树模型，初始所有结点均为白色，可以用蓝色染料给模型结点染色，
+     * 模型的每个结点有一个 val 价值。小扣出于美观考虑，
+     * 希望最后二叉树上每个蓝色相连部分的结点个数不能超过 k 个，求所有染成蓝色的结点价值总和最大是多少？
+     * <p>
+     * 示例 1：
+     * 输入：root = [5,2,3,4], k = 2
+     * 输出：12
+     * 解释：结点 5、3、4 染成蓝色，获得最大的价值 5+3+4=12
+     * <p>
+     * 示例 2：
+     * 输入：root = [4,1,3,9,null,null,2], k = 2
+     * 输出：16
+     * 解释：结点 4、3、9 染成蓝色，获得最大的价值 4+3+9=16
+     * <p>
+     * 题解：使用树形DP自底向上计算价值总和
+     * 定义dp[i]（i<=k），表示以root为根节点时，染色i个节点时的最大价值总和，则ans=max(dp[i])
+     * root为根节点进行染色时，分为2种情况：
+     * 1）root不染色，即dp[0]，则答案为左右子树最大值之和，ans=dp[0]=left_max(dp[i])+right_max(dp[i])
+     * 2）root染色，则左子树染色j个，右子树最多染色i-1-j个，答案为左子树最多染色i个的最大值+右子树最多染色k-1-i个的最大值+根节点的值
+     * ans=root.val+left_dp[j]+right_dp[i-1-j]
+     */
+    @Test
+    public void test() {
+        Integer[] arr = {4,1,3,9,null,null,2};
+        TreeNode treeNode = getTreeNode(arr);
+        System.out.println(maxValue(treeNode,2));
+    }
+
+    public int maxValue(TreeNode root, int k) {
+        int[]dp=dp(root,k);
+        System.out.println("maxValue-dp:"+Arrays.toString(dp));
+        int ans=Integer.MIN_VALUE;
+        for (int i = 0; i <= k; i++) {
+            ans=Math.max(dp[i],ans);
+        }
+        return ans;
+    }
+
+    public int[] dp(TreeNode root, int k) {
+        int[] dp = new int[k + 1];
+        if (root == null) {
+            return dp;
+        }
+        // 获取左、右子树染色状态的dp表
+        int[] l = dp(root.left, k);
+        int[] r = dp(root.right, k);
+        // root不染色
+        int ml = Integer.MIN_VALUE;
+        int mr = Integer.MIN_VALUE;
+        for (int i = 0; i <= k; i++) {
+            ml = Math.max(ml, l[i]);
+            mr = Math.max(mr, r[i]);
+        }
+        dp[0] = ml + mr;
+        // root染色
+        for (int i = 0; i <= k; i++) {
+            for (int j = 0; j < i; j++) {
+                // dp[i]表示最多染色i个时的最大价值总和
+                // 还需要染色 i - 1 个点，左子树 j 个，右子树 i-1-j 个
+                dp[i] = Math.max(dp[i],  root.val + l[j] + r[i - 1 - j]);
+            }
+        }
+        return dp;
+    }
+
+
 }
