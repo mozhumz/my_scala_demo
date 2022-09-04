@@ -156,6 +156,44 @@ public class TreeTest {
         return i;
     }
 
+    /**
+     * 根据层序结果构建二叉树
+     *
+     * @param arr 层序结果
+     * @return 二叉树根节点
+     */
+    public TreeNode buildTreeByLevelArr(Integer[]arr){
+        if(arr==null||arr.length==0){
+            return null;
+        }
+        int i=0;
+        TreeNode root=new TreeNode(arr[i]);
+        LinkedList<TreeNode>list=new LinkedList<>();
+        list.add(root);
+        while (!list.isEmpty()){
+            i++;
+            if(i>=arr.length){
+                break;
+            }
+            TreeNode node = list.poll();
+            if(arr[i]!=null){
+                node.left=new TreeNode(arr[i]);
+                list.add(node.left);
+            }
+            i++;
+            if(i>=arr.length){
+                break;
+            }
+            if(arr[i]!=null){
+                node.right=new TreeNode(arr[i]);
+                list.add(node.right);
+            }
+        }
+        return root;
+    }
+
+
+
 
     @Test
     public void testLevelOrder() {
@@ -256,8 +294,9 @@ public class TreeTest {
      */
     @Test
     public void test() {
-        Integer[] arr = {4,1,3,9,null,null,2};
-        TreeNode treeNode = getTreeNode(arr);
+        Integer[] arr = {8,1,3,9,9,9,null,9,5,6,8};
+        TreeNode treeNode = buildTreeByLevelArr(arr);
+//        printLevelTreeNode(treeNode);
         System.out.println(maxValue(treeNode,2));
     }
 
