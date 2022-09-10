@@ -1,5 +1,7 @@
 package com.hyj.algorithm.demo;
 
+import org.junit.Test;
+
 import java.util.List;
 
 /**
@@ -345,14 +347,14 @@ public class DynamicPlan {
         }
 
         for (int p = 1; p <= i; p++) {
-            int temp=dp[0];
+            int temp = dp[0];
             //第p行0列的值为p
             dp[0] = p;
             for (int q = 1; q <= j; q++) {
                 //上一行第q-1列的值
                 int preQ1 = temp;
 //              上一行第q列的值
-                temp=dp[q];
+                temp = dp[q];
                 if (word1.charAt(p - 1) == word2.charAt(q - 1)) {
                     dp[q] = preQ1;
                 } else {
@@ -366,9 +368,29 @@ public class DynamicPlan {
         return dp[j];
     }
 
+    @Test
+    public void testNumWays() {
+        System.out.println(numWays(10));
+    }
+
+    public int numWays(int n) {
+        if (n <= 1) {
+            return 1;
+        }
+        int[]dp=new int[n+1];
+        dp[0]=1;
+        dp[1]=1;
+
+        for (int i = 2; i <= n; i++) {
+            dp[i]=(dp[i-1]+dp[i-2])%1000000007;
+        }
+
+        return dp[n];
+    }
+
 
     public static void main(String[] args) {
-//        System.out.println(frogJumpSteps(20));
+        System.out.println(frogJumpSteps(20));
 //        System.out.println(robotWalkGrid(9, 3));
         System.out.println(robotWalkGrid2(3, 5));
         System.out.println(robotWalkGrid2Better(3, 5));
