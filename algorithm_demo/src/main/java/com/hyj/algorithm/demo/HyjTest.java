@@ -280,10 +280,10 @@ public class HyjTest {
                 " [21,22,23,24,25]]  ";
 //        str = "[[-1,3]]";
         str = "[[1,3,5,7,9],[2,4,6,8,10],[11,13,15,17,19],[12,14,16,18,20],[21,22,23,24,25]] ";
-        str="[[1],[3],[5]]";
+        str = "[[1],[3],[5]]";
         JSONArray jsonArray = JSON.parseArray(str);
         int len = jsonArray.size();
-        int n=1;
+        int n = 1;
         int[][] arr = new int[len][n];
         for (int i = 0; i < jsonArray.size(); i++) {
             JSONArray o = (JSONArray) jsonArray.get(i);
@@ -392,7 +392,7 @@ public class HyjTest {
         if (n == null) return false;
         int i = 0;
         int j = n - 1;
-        while (i < m && j >=0) {
+        while (i < m && j >= 0) {
             if (target == matrix[i][j]) {
                 return true;
             }
@@ -441,5 +441,30 @@ public class HyjTest {
         }
         exeCount = 0;
         System.out.println(-1 + ":" + binarySearch(arr, -1, 0, arr.length / 2, arr.length - 1) + " exeCount:" + exeCount);
+    }
+
+    @Test
+    public void test1203() {
+        // 一个数组有2个数出现奇数次，其余出现偶数次，请找到这2个数
+        int[] arr = {1, 6, 88, 1, 2, 3, 3, 5, 5, 2, 3, 5, 6, 88};
+
+        int eor = 0;
+        for (int i : arr) {
+            // 异或运算 相同为0 不同为1
+            eor ^= i;
+        }
+        int one=0;
+        // 提取最右侧为1的数
+        int r = eor & (~eor + 1);
+        for (int i : arr) {
+            // 与运算 遇到1为1，否则为0
+            // 拆分出某一位=0的数进行异或运算
+            int tmp=(r & i);
+            if(tmp ==0){
+                one ^=i;
+            }
+        }
+        System.out.println(one+" " + (one^eor));
+
     }
 }
