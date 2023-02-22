@@ -13,6 +13,7 @@
         <module>flume_demo</module>
         <module>flink_demo</module>
         <module>algorithm_demo</module>
+        <module>springboot_demo</module>
     </modules>
 
     <properties>
