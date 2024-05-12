@@ -26,5 +26,6 @@ public class FunctionTest {
         coo.setName("lisi");
         boo.setParam(coo);
         boo.start();
+        new Thread().interrupt();
     }
 }

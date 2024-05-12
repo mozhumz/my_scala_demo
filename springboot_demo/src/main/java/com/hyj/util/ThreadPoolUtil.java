@@ -4,18 +4,21 @@ import java.util.concurrent.*;
 
 public class ThreadPoolUtil {
     public static void main(String[] args) throws InterruptedException {
-        ThreadPoolExecutor pool = new ThreadPoolExecutor(0, Integer.MAX_VALUE,
+        ThreadPoolExecutor pool = new ThreadPoolExecutor(4, Integer.MAX_VALUE,
                 60L, TimeUnit.SECONDS,
-                new SynchronousQueue<Runnable>());
-        Thread.sleep(5000);
-        int count = 100000;
+                new LinkedBlockingDeque<>());
+        int count = 10000000;
         CountDownLatch countDownLatch = new CountDownLatch(count);
         for (int i = 0; i < count; i++) {
             try {
                 pool.execute(() -> {
                     try {
-//                        System.out.println("" + Thread.currentThread().getName() + "-start...");
-                        Thread.sleep(6000);
+                        if(Thread.currentThread().isInterrupted()){
+                            System.out.println("" + Thread.currentThread().getName() + "-isInterrupted");
+                        }
+//                        Thread.sleep(5000);
+                        System.out.println("" + Thread.currentThread().getName() + "-start...");
+
                     } catch (Exception e) {
                         System.out.println("thread-Exception:");
                         e.printStackTrace();
@@ -29,8 +32,7 @@ public class ThreadPoolUtil {
                 e.printStackTrace();
             }
         }
-        countDownLatch.await();
-        pool.shutdown();
+        pool.shutdownNow();
         System.out.println("ok!");
     }
 }
